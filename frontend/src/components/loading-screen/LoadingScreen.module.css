@@ -1,0 +1,158 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at center,
+      #1b1c18 0%,
+      #0d0e0c 55%,
+      #050605 100%
+    );
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: 0.07;
+
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.15) 3px
+    );
+}
+
+.content {
+  position: relative;
+  width: min(600px, calc(100% - 40px));
+}
+
+.logo {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: clamp(42px, 8vw, 80px);
+  font-weight: 900;
+
+  letter-spacing: -4px;
+  line-height: 0.82;
+
+  text-transform: uppercase;
+}
+
+.logo span {
+  display: block;
+
+  color: var(--color-accent);
+
+  font-size: 0.55em;
+  letter-spacing: 8px;
+}
+
+.subtitle {
+  margin-top: 28px;
+
+  color: var(--color-text-muted);
+
+  font-family: var(--font-mono);
+  font-size: 12px;
+
+  letter-spacing: 4px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+
+  min-height: 24px;
+
+  margin-top: 56px;
+
+  color: var(--color-text);
+
+  font-family: var(--font-mono);
+  font-size: 13px;
+
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+
+  margin-right: 12px;
+
+  background: var(--color-accent);
+
+  box-shadow: 0 0 8px var(--color-accent);
+}
+
+.blink {
+  margin-left: 3px;
+
+  animation: blink 700ms step-end infinite;
+}
+
+.progress {
+  height: 3px;
+
+  margin-top: 14px;
+
+  overflow: hidden;
+
+  background: #282923;
+}
+
+.progressBar {
+  height: 100%;
+
+  background: var(--color-accent);
+
+  box-shadow: 0 0 8px rgba(194, 178, 128, 0.5);
+
+  transition: width 50ms linear;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 9px;
+
+  color: #66675f;
+
+  font-family: var(--font-mono);
+  font-size: 10px;
+
+  letter-spacing: 2px;
+}
+
+.version {
+  margin-top: 60px;
+
+  color: #454640;
+
+  font-family: var(--font-mono);
+  font-size: 9px;
+
+  letter-spacing: 2px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

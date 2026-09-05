@@ -1,0 +1,46 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+
+  background: var(--color-background);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+
+  margin: 0;
+
+  color: var(--color-text);
+
+  background:
+    radial-gradient(
+      circle at 40% 0%,
+      rgba(194, 178, 128, 0.025),
+      transparent 35%
+    ),
+    var(--color-background);
+
+  font-family: var(--font-main);
+
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border-radius: 0;
+}
+
+::selection {
+  color: #0b0c0a;
+
+  background: var(--color-accent);
+}

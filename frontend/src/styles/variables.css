@@ -1,0 +1,22 @@
+:root {
+  --color-background: #090a08;
+  --color-surface: #10110e;
+  --color-surface-hover: #151611;
+
+  --color-border: #272821;
+
+  --color-text: #dbdbd0;
+  --color-text-muted: #85867c;
+
+  --color-accent: #c2b280;
+
+  --font-main:
+    'Bender',
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  --font-mono:
+    'Bender',
+    monospace;
+}

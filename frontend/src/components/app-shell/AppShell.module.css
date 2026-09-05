@@ -1,0 +1,19 @@
+.root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 40px 64px;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 20px 16px 40px;
+  }
+}

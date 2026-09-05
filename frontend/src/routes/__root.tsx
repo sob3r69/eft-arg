@@ -1,8 +1,17 @@
-import { TanStackDevtools } from '@tanstack/react-devtools';
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import type { ReactNode } from 'react';
 
-import appCss from '../styles.css?url';
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from '@tanstack/react-router';
+
+import { AppShell } from '#/components';
+
+import '#/styles/fonts.css';
+import '#/styles/variables.css';
+import '#/styles/globals.css';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,38 +24,42 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Escape Protocol',
       },
-    ],
-    links: [
       {
-        rel:  'stylesheet',
-        href: appCss,
+        name:    'description',
+        content: 'Escape from Tarkov ARG',
       },
     ],
   }),
-  shellComponent: RootDocument,
+
+  component: RootComponent,
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootComponent() {
   return (
-    <html lang="en">
+    <RootDocument>
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </RootDocument>
+  );
+}
+
+function RootDocument({
+  children,
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  return (
+    <html lang="ru">
       <head>
         <HeadContent />
       </head>
+
       <body>
         {children}
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name:   'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+
         <Scripts />
       </body>
     </html>
