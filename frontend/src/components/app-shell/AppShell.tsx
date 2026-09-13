@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 
 import { useEffect, useState } from 'react';
 
-import { Footer } from '#/components/footer/Footer';
-import { Header } from '#/components/header/Header';
-import { LoadingScreen } from '#/components/loading-screen/LoadingScreen';
+import { Footer } from '#/features/footer/Footer';
+import { Header } from '#/features/header/Header';
+import { LoadingScreen } from '#/features/loading-screen/LoadingScreen';
 
 import classes from './AppShell.module.css';
 

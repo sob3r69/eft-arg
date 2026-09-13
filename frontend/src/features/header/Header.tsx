@@ -1,39 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
+import { TRADERS } from './constants';
 import classes from './Header.module.css';
-
-const traders = [
-  {
-    id:    'prapor',
-    name:  'Прапор',
-    level: 'III',
-  },
-  {
-    id:    'therapist',
-    name:  'Терапевт',
-    level: 'III',
-  },
-  {
-    id:    'skier',
-    name:  'Скупщик',
-    level: 'I',
-  },
-  {
-    id:    'skier-2',
-    name:  'Лыжник',
-    level: 'III',
-  },
-  {
-    id:    'peacekeeper',
-    name:  'Миротворец',
-    level: 'III',
-  },
-  {
-    id:    'mechanic',
-    name:  'Механик',
-    level: 'III',
-  },
-];
 
 export function Header() {
   return (
@@ -92,7 +60,7 @@ export function Header() {
 
       <div className={classes.bottomRow}>
         <div className={classes.traders}>
-          {traders.map(trader => (
+          {TRADERS.map(trader => (
             <button
               key={trader.id}
               type="button"

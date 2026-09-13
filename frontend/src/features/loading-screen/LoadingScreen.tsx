@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import { LOADING_MESSAGES } from './constants';
 import classes from './LoadingScreen.module.css';
 
 interface LoadingScreenProps {
   duration: number;
 }
-
-const loadingMessages = [
-  'Установка защищенного соединения',
-  'Получение данных оперативника',
-  'Синхронизация заданий',
-  'Проверка инвентаря',
-  'Подключение к терминалу',
-];
 
 export function LoadingScreen({
   duration,
@@ -39,8 +32,8 @@ export function LoadingScreen({
   }, [duration]);
 
   const messageIndex = Math.min(
-    Math.floor((progress / 100) * loadingMessages.length),
-    loadingMessages.length - 1,
+    Math.floor((progress / 100) * LOADING_MESSAGES.length),
+    LOADING_MESSAGES.length - 1,
   );
 
   return (
@@ -60,7 +53,7 @@ export function LoadingScreen({
         <div className={classes.status}>
           <span className={classes.statusDot} />
 
-          {loadingMessages[messageIndex]}
+          {LOADING_MESSAGES[messageIndex]}
           <span className={classes.blink}>_</span>
         </div>
 
