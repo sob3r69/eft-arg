@@ -8,6 +8,8 @@ import {
 } from '@tanstack/react-router';
 
 import { AppShell } from '#/components';
+import { QueryProvider } from '#/providers/QueryProvider';
+import { TraderSelectionProvider } from '#/providers/TraderSelectionProvider';
 
 import '#/styles/fonts.css';
 import '#/styles/variables.css';
@@ -39,9 +41,13 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <AppShell>
-        <Outlet />
-      </AppShell>
+      <QueryProvider>
+        <TraderSelectionProvider>
+          <AppShell>
+            <Outlet />
+          </AppShell>
+        </TraderSelectionProvider>
+      </QueryProvider>
     </RootDocument>
   );
 }

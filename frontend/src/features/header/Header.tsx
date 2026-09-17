@@ -1,9 +1,31 @@
-import { Link } from '@tanstack/react-router';
+import type { Trader } from '#/shared/api/game';
+import { useQuery } from '@tanstack/react-query';
 
-import { TRADERS } from './constants';
+import { Link } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useTraderSelection } from '#/providers/TraderSelectionProvider';
+import { getTraders } from '#/shared/api/game';
+
 import classes from './Header.module.css';
 
 export function Header() {
+  const { selectedTraderSlug, setSelectedTraderSlug } = useTraderSelection();
+
+  const tradersQuery = useQuery({
+    queryKey: ['traders'],
+    queryFn:  getTraders,
+  });
+
+  const traders = getTraderCards(tradersQuery.data, tradersQuery.isLoading, tradersQuery.isError);
+
+  useEffect(() => {
+    const firstTrader = tradersQuery.data?.[0];
+
+    if (!selectedTraderSlug && firstTrader) {
+      setSelectedTraderSlug(firstTrader.slug);
+    }
+  }, [selectedTraderSlug, setSelectedTraderSlug, tradersQuery.data]);
+
   return (
     <header className={classes.header}>
       <div className={classes.topRow}>
@@ -60,20 +82,34 @@ export function Header() {
 
       <div className={classes.bottomRow}>
         <div className={classes.traders}>
-          {TRADERS.map(trader => (
+          {traders.map(trader => (
             <button
               key={trader.id}
               type="button"
-              className={classes.trader}
+              className={`${classes.trader} ${trader.id === selectedTraderSlug ? classes.traderActive : ''}`}
+              disabled={trader.disabled}
+              onClick={() => {
+                setSelectedTraderSlug(trader.id);
+              }}
             >
               <span className={classes.traderLevel}>
-                {trader.level}
+                {trader.levelLabel}
               </span>
 
               <div className={classes.traderAvatar}>
                 <span>
                   ?
                 </span>
+
+                {trader.image && (
+                  <img
+                    alt=""
+                    src={trader.image}
+                    onError={(event) => {
+                      event.currentTarget.hidden = true;
+                    }}
+                  />
+                )}
               </div>
 
               <div className={classes.traderName}>
@@ -135,4 +171,46 @@ export function Header() {
       </div>
     </header>
   );
+}
+
+interface TraderCard {
+  id:         string;
+  name:       string;
+  image:      string;
+  levelLabel: string;
+  disabled:   boolean;
+}
+
+function getTraderCards(traders: Trader[] | undefined, isLoading: boolean, isError: boolean): TraderCard[] {
+  if (traders?.length) {
+    return traders.map((trader, index) => ({
+      id:         trader.slug,
+      name:       trader.name,
+      image:      trader.image,
+      levelLabel: getLevelLabel(index),
+      disabled:   !trader.available,
+    }));
+  }
+
+  if (isLoading) {
+    return Array.from({ length: 6 }, (_, index) => ({
+      id:         `loading-${index}`,
+      name:       'Загрузка',
+      image:      '',
+      levelLabel: 'I',
+      disabled:   true,
+    }));
+  }
+
+  return [{
+    id:         'traders-unavailable',
+    name:       isError ? 'Нет связи' : 'Нет данных',
+    image:      '',
+    levelLabel: 'I',
+    disabled:   true,
+  }];
+}
+
+function getLevelLabel(index: number) {
+  return index === 2 ? 'I' : 'III';
 }

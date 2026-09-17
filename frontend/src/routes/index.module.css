@@ -1,229 +1,554 @@
 .root {
-  padding-top: 44px;
+  width: min(100%, 1600px);
+  margin: 0 auto;
 }
 
-.hero {
-  max-width: 850px;
-}
+.questWindow {
+  min-height: calc(100dvh - 290px);
 
-.eyebrow {
-  margin: 0 0 22px;
-
-  color: var(--color-accent);
-
-  font-family: var(--font-mono);
-  font-size: 10px;
-
-  letter-spacing: 3px;
-}
-
-.hero h1 {
-  margin: 0;
-
-  color: var(--color-text);
-
-  font-family: var(--font-main);
-  font-size: clamp(42px, 7vw, 86px);
-  font-weight: 900;
-
-  letter-spacing: -3px;
-  line-height: 0.95;
-}
-
-.hero h1 span {
-  color: var(--color-accent);
-}
-
-.description {
-  max-width: 650px;
-
-  margin-top: 28px;
-
-  color: var(--color-text-muted);
-
-  font-size: 15px;
-  line-height: 1.8;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
-  gap: 18px;
-
-  margin-top: 70px;
-}
-
-.primaryCard,
-.statCard {
-  border: 1px solid var(--color-border);
+  color: #b9bbb3;
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(194, 178, 128, 0.03),
-      transparent 40%
-    ),
-    var(--color-surface);
+    radial-gradient(circle at 72% 16%, rgba(45, 67, 68, 0.18), transparent 26%),
+    linear-gradient(180deg, rgba(8, 10, 10, 0.98), rgba(4, 5, 5, 0.98));
+
+  font-family: var(--font-main);
 }
 
-.primaryCard {
-  min-height: 360px;
+.questHeader {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 360px;
+  align-items: center;
 
-  padding: 28px 30px;
+  min-height: 64px;
+
+  border: 1px solid #2b2d25;
+
+  background:
+    linear-gradient(90deg, rgba(35, 31, 19, 0.72), rgba(31, 24, 11, 0.92) 72%, rgba(20, 16, 10, 0.88)),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px);
 }
 
-.primaryCard header {
+.completeButton {
+  height: 64px;
+
+  border: 0;
+  border-right: 1px solid #313126;
+
+  color: #777970;
+
+  background:
+    linear-gradient(90deg, rgba(42, 43, 36, 0.2), rgba(42, 43, 36, 0.68));
+
+  cursor: default;
+
+  font-size: 26px;
+  text-transform: uppercase;
+}
+
+.completeButton:not(:disabled) {
+  color: #ded9bd;
+
+  cursor: pointer;
+}
+
+.questTitle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 
-  color: var(--color-text-muted);
+  min-width: 0;
+  padding: 0 26px;
 
-  font-family: var(--font-mono);
-  font-size: 9px;
+  color: #e0e1db;
 
-  letter-spacing: 2px;
+  font-size: 28px;
+  line-height: 1.1;
 }
 
-.status {
-  color: var(--color-accent);
+.questTitleIcon {
+  color: #d8ddd8;
+
+  font-size: 27px;
 }
 
-.questNumber {
-  margin-top: 68px;
+.questMeta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
 
-  color: #67685f;
+  padding-right: 24px;
 
-  font-family: var(--font-mono);
-  font-size: 10px;
+  color: #bfc0b7;
 
-  letter-spacing: 3px;
+  font-size: 19px;
 }
 
-.primaryCard h2 {
-  margin: 9px 0 0;
+.questMeta strong,
+.rowStatus {
+  color: #d99b2d;
 
-  color: var(--color-text);
-
-  font-size: 32px;
-
-  letter-spacing: -1px;
+  font-weight: 700;
 }
 
-.primaryCard p {
-  max-width: 560px;
+.loyaltyBadge {
+  display: inline-grid;
+  place-items: center;
 
-  margin-top: 16px;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 5px;
 
-  color: var(--color-text-muted);
+  color: #243033;
 
-  font-size: 14px;
-  line-height: 1.7;
+  background: #d9dedb;
+
+  font-size: 16px;
+  font-weight: 800;
 }
 
-.primaryCard button {
-  margin-top: 34px;
-  padding: 13px 22px;
+.content {
+  display: grid;
+  grid-template-columns: 430px minmax(0, 1fr);
+  gap: 16px;
 
-  border: 1px solid var(--color-accent);
+  padding-top: 18px;
+}
 
-  color: #0c0d0b;
+.sidebar {
+  min-width: 0;
 
-  background: var(--color-accent);
+  border-right: 1px solid #4d514b;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+
+  height: 54px;
+  padding: 0 14px;
+
+  color: #b9bbb4;
+
+  background: rgba(14, 16, 14, 0.92);
+
+  font-size: 20px;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  cursor: pointer;
+}
+
+.filters input {
+  width: 20px;
+  height: 20px;
+
+  accent-color: #d5d7ca;
+}
+
+.viewButtons {
+  display: flex;
+  gap: 9px;
+
+  margin-left: auto;
+}
+
+.viewButtons button {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid #4b5351;
+
+  color: #e5e5dc;
+
+  background: #2a302f;
 
   cursor: pointer;
 
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 17px;
+}
+
+.questList {
+  max-height: calc(100dvh - 420px);
+  min-height: 540px;
+
+  overflow: auto;
+
+  background: rgba(5, 7, 7, 0.95);
+}
+
+.questGroup {
+  border-bottom: 1px solid #30332e;
+}
+
+.groupTitle,
+.questRow {
+  width: 100%;
+
+  border: 0;
+
+  font-family: inherit;
+
+  text-align: left;
+}
+
+.groupTitle {
+  display: grid;
+  grid-template-columns: 33px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 48px;
+  padding: 0 14px;
+
+  color: #b9bbb4;
+
+  background: #080a0a;
+
+  cursor: default;
+
+  font-size: 19px;
+}
+
+.questRow {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) max-content 20px;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 58px;
+  padding: 0 14px;
+
+  border-top: 1px solid #090908;
+  border-bottom: 1px solid #171714;
+
+  color: #bfc1b7;
+
+  background:
+    linear-gradient(90deg, rgba(45, 29, 8, 0.9), rgba(28, 19, 7, 0.92));
+
+  cursor: pointer;
+
+  font-size: 19px;
+}
+
+.questRow:hover {
+  filter: brightness(1.12);
+}
+
+.questRowActive {
+  color: #171915;
+
+  background: #b8b8aa;
+}
+
+.rowIcon {
+  color: currentColor;
+
+  font-size: 22px;
+}
+
+.rowTitle {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowArrow {
+  color: currentColor;
+
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.emptyList {
+  padding: 36px 24px;
+
+  color: #8e918a;
+
+  font-size: 20px;
+}
+
+.details {
+  min-width: 0;
+  padding-right: 16px;
+}
+
+.detailIntro {
+  display: grid;
+  grid-template-columns: minmax(280px, 36%) minmax(0, 1fr);
+  gap: 28px;
+}
+
+.questImage {
+  display: grid;
+  place-items: center;
+
+  min-height: 260px;
+
+  border: 1px solid #3d4542;
+
+  color: #d9dacd;
+
+  background:
+    linear-gradient(135deg, rgba(114, 126, 113, 0.28), rgba(15, 21, 21, 0.92)),
+    radial-gradient(circle at 55% 30%, rgba(219, 221, 199, 0.25), transparent 38%);
+
+  font-size: 28px;
+}
+
+.questText {
+  padding: 0 0 12px;
+
+  color: #aeb2af;
+
+  font-size: 22px;
+  line-height: 1.28;
+}
+
+.questText p {
+  margin: 0 0 24px;
+}
+
+.requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-bottom: 20px;
+
+  color: #8f948f;
+
+  font-size: 16px;
+}
+
+.requirements strong {
+  color: #d0d1c8;
+}
+
+.startButton {
+  padding: 12px 22px;
+
+  border: 1px solid #b9ac75;
+
+  color: #161a18;
+
+  background: #c5bb8a;
+
+  cursor: pointer;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.startButton:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.objectives,
+.rewards {
+  margin-top: 22px;
+}
+
+.objectives h2,
+.rewards h2 {
+  margin: 0 0 10px;
+
+  color: #aeb2ad;
+
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.objectiveRow {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) max-content 34px;
+  align-items: center;
+  gap: 10px;
+
+  min-height: 54px;
+  margin-bottom: 7px;
+  padding: 0 22px;
+
+  color: #c6cac8;
+
+  background: #2a2c2e;
+
+  font-size: 20px;
+}
+
+.objectiveRow:nth-child(even),
+.objectiveRowDone {
+  background:
+    linear-gradient(90deg, rgba(14, 38, 45, 0.86), rgba(13, 24, 27, 0.92));
+}
+
+.objectiveRow strong {
+  overflow: hidden;
+
   font-weight: 700;
 
-  letter-spacing: 1.5px;
-
-  transition:
-    opacity 150ms ease,
-    transform 150ms ease;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.primaryCard button:hover {
-  opacity: 0.85;
+.objectiveRow em {
+  color: #8d938e;
 
-  transform: translateY(-1px);
+  font-size: 15px;
+  font-style: normal;
 }
 
-.stats {
+.doneMark {
+  color: #82eaff;
+
+  font-size: 26px;
+  text-shadow: 0 0 8px #00c8ff;
+}
+
+.rewardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.rewardItem {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
+  align-items: center;
+  gap: 14px;
+
+  min-height: 76px;
+  padding: 0 20px;
+
+  color: #b8bbb5;
+
+  background:
+    linear-gradient(90deg, rgba(20, 22, 23, 0.96), rgba(32, 33, 32, 0.86));
 }
 
-.statCard {
-  flex: 1;
+.rewardItem span {
+  display: grid;
+  place-items: center;
 
-  padding: 24px;
+  width: 54px;
+  height: 54px;
+
+  border: 1px solid #515956;
+
+  color: #e9ece8;
+
+  background: #141717;
+
+  font-size: 18px;
+  font-weight: 800;
 }
 
-.statCard > span {
-  color: var(--color-text-muted);
-
-  font-family: var(--font-mono);
-  font-size: 9px;
-
-  letter-spacing: 2px;
+.rewardItem strong {
+  font-size: 16px;
 }
 
-.statCard strong {
-  display: block;
+.emptyDetails {
+  padding: 80px 48px;
 
-  margin-top: 20px;
-
-  color: var(--color-text);
-
-  font-family: var(--font-mono);
-  font-size: 24px;
+  color: #aeb2ad;
 }
 
-.statCard .online {
-  color: #8d9c6a;
+.emptyDetails h2 {
+  margin: 0 0 12px;
 
-  font-size: 14px;
+  color: #dadbd2;
+
+  font-size: 32px;
 }
 
-.statProgress {
-  height: 2px;
+.emptyDetails p {
+  margin: 0;
 
-  margin-top: 18px;
-
-  background: #292a25;
+  font-size: 20px;
 }
 
-.statProgress div {
-  height: 100%;
+@media (max-width: 1100px) {
+  .questHeader {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
 
-  background: var(--color-accent);
+  .questMeta {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+
+    padding: 0 18px 12px;
+
+    font-size: 15px;
+  }
+
+  .content {
+    grid-template-columns: 360px minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .root {
-    padding-top: 20px;
-  }
-
-  .hero h1 {
-    letter-spacing: -1px;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-
-    margin-top: 44px;
-  }
-
-  .primaryCard {
+  .questWindow {
     min-height: auto;
-
-    padding: 22px 20px 26px;
   }
 
-  .questNumber {
-    margin-top: 50px;
+  .questHeader,
+  .content,
+  .detailIntro,
+  .rewardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .completeButton {
+    display: none;
+  }
+
+  .questTitle {
+    min-height: 56px;
+
+    font-size: 20px;
+  }
+
+  .sidebar {
+    border-right: 0;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+
+    height: auto;
+    padding: 12px;
+
+    font-size: 15px;
+  }
+
+  .questList {
+    max-height: 320px;
+    min-height: 220px;
+  }
+
+  .details {
+    padding: 0;
+  }
+
+  .questImage {
+    min-height: 180px;
+  }
+
+  .questText,
+  .objectiveRow {
+    font-size: 16px;
   }
 }
