@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-Light.woff') format('woff');
+  src: url('/fonts/bender/Bender-Light.woff') format('woff');
   font-style: normal;
   font-weight: 300;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-LightItalic.woff') format('woff');
+  src: url('/fonts/bender/Bender-LightItalic.woff') format('woff');
   font-style: italic;
   font-weight: 300;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-Regular.woff') format('woff');
+  src: url('/fonts/bender/Bender.woff') format('woff');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-Italic.woff') format('woff');
+  src: url('/fonts/bender/Bender-Italic.woff') format('woff');
   font-style: italic;
   font-weight: 400;
   font-display: swap;
@@ -32,7 +32,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-Bold.woff') format('woff');
+  src: url('/fonts/bender/Bender-Bold.woff') format('woff');
   font-style: normal;
   font-weight: 700;
   font-display: swap;
@@ -40,7 +40,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-BoldItalic.woff') format('woff');
+  src: url('/fonts/bender/Bender-BoldItalic.woff') format('woff');
   font-style: italic;
   font-weight: 700;
   font-display: swap;
@@ -48,7 +48,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-Black.woff') format('woff');
+  src: url('/fonts/bender/Bender-Black.woff') format('woff');
   font-style: normal;
   font-weight: 900;
   font-display: swap;
@@ -56,7 +56,7 @@
 
 @font-face {
   font-family: 'Bender';
-  src: url('../../public/fonts/bender/Bender-BlackItalic.woff') format('woff');
+  src: url('/fonts/bender/Bender-BlackItalic.woff') format('woff');
   font-style: italic;
   font-weight: 900;
   font-display: swap;
