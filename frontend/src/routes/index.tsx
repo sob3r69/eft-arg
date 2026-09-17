@@ -244,7 +244,9 @@ function QuestDetails({
     <>
       <div className={classes.detailIntro}>
         <div className={classes.questImage}>
-          <span>{quest.trader.name}</span>
+          {quest.image
+            ? <img key={quest.image} src={quest.image} alt={quest.title} />
+            : <span>{quest.trader.name}</span>}
         </div>
 
         <div className={classes.questText}>

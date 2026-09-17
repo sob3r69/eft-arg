@@ -25,7 +25,7 @@ class TraderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     def quests(self, request, pk=None):
         trader = self.get_object()
         quests = trader.quests.prefetch_related("objectives__submissions", "objectives__item", "objectives__location", "requirements__required_quest").order_by("sort_order", "id")
-        serializer = QuestDetailSerializer(quests, many=True)
+        serializer = QuestDetailSerializer(quests, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
 
@@ -57,14 +57,14 @@ class QuestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
     def start(self, request, pk=None):
         quest = self.get_object()
         quest = start_quest(quest)
-        serializer = QuestDetailSerializer(quest)
+        serializer = QuestDetailSerializer(quest, context=self.get_serializer_context())
         return Response(serializer.data)
 
 
     @action(detail=True, methods=["post"])
     def complete(self, request, pk=None):
         quest = complete_quest(self.get_object())
-        return Response(QuestDetailSerializer(quest).data)
+        return Response(QuestDetailSerializer(quest, context=self.get_serializer_context()).data)
 
 
 class ObjectiveViewSet(viewsets.GenericViewSet):

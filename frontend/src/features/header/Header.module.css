@@ -305,6 +305,8 @@
 }
 
 .traderAvatar {
+  position: relative;
+  overflow: hidden;
   display: grid;
   place-items: center;
 
@@ -328,10 +330,13 @@
 }
 
 .traderAvatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 
   object-fit: cover;
+  object-position: 50% 20%;
 }
 
 .traderName {

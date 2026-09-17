@@ -1,4 +1,9 @@
 from django.urls import reverse
+from io import BytesIO
+from tempfile import TemporaryDirectory
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.forms import modelform_factory
+from PIL import Image
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -32,6 +37,26 @@ class GameFlowTests(APITestCase):
         self.assertEqual(response.data["status"], Submission.Status.PENDING)
         self.objective.refresh_from_db()
         self.assertEqual(self.objective.current_amount, 0)
+
+    def test_image_upload_and_absolute_api_urls(self):
+        buffer = BytesIO()
+        Image.new("RGB", (2, 2)).save(buffer, format="PNG")
+        with TemporaryDirectory() as media_root, self.settings(MEDIA_ROOT=media_root):
+            for instance, directory in [(self.trader, "traders"), (self.quest, "quests")]:
+                form_class = modelform_factory(type(instance), fields=["image"])
+                invalid = form_class(files={"image": SimpleUploadedFile("bad.png", b"not an image")}, instance=instance)
+                self.assertFalse(invalid.is_valid())
+                form = form_class(files={"image": SimpleUploadedFile("test.png", buffer.getvalue(), content_type="image/png")}, instance=instance)
+                self.assertTrue(form.is_valid(), form.errors)
+                form.save()
+                self.assertTrue(instance.image.storage.exists(instance.image.name))
+                self.assertTrue(instance.image.url.startswith(f"/media/{directory}/"))
+            trader = self.client.get(reverse("trader-detail", args=[self.trader.pk])).data
+            quest = self.client.get(reverse("quest-detail", args=[self.quest.pk])).data
+            self.assertEqual(trader["image"], "http://testserver" + self.trader.image.url)
+            self.assertEqual(quest["image"], "http://testserver" + self.quest.image.url)
+            quests = self.client.get(reverse("trader-quests", args=[self.trader.pk])).data
+            self.assertEqual(quests[0]["image"], quest["image"])
 
     def test_review_status_is_exposed_and_rejected_submission_can_be_retried(self):
         detail_url = reverse("quest-detail", args=[self.quest.pk])

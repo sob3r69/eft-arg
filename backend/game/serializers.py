@@ -61,7 +61,7 @@ class QuestListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quest
-        fields = ["id", "slug", "title", "description", "status", "trader", "progress", "sort_order"]
+        fields = ["id", "slug", "title", "description", "image", "status", "trader", "progress", "sort_order"]
 
     def get_progress(self, quest: Quest) -> dict[str, int]:
         objectives = quest.objectives.all()

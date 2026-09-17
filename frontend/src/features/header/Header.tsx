@@ -103,6 +103,7 @@ export function Header() {
 
                 {trader.image && (
                   <img
+                    key={trader.image}
                     alt=""
                     src={trader.image}
                     onError={(event) => {
@@ -186,7 +187,7 @@ function getTraderCards(traders: Trader[] | undefined, isLoading: boolean, isErr
     return traders.map((trader, index) => ({
       id:         trader.slug,
       name:       trader.name,
-      image:      trader.image,
+      image:      trader.image ?? '',
       levelLabel: getLevelLabel(index),
       disabled:   !trader.available,
     }));

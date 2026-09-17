@@ -12,7 +12,6 @@ class Command(BaseCommand):
             defaults={
                 "name": "Прапор",
                 "description": "Тестовый торговец для ARG MVP.",
-                "image": "/images/traders/prapor.png",
                 "available": True,
                 "sort_order": 0,
             },

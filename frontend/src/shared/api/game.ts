@@ -7,7 +7,7 @@ export interface Trader {
   slug:        string;
   name:        string;
   description: string;
-  image:       string;
+  image:       string | null;
   available:   boolean;
 }
 
@@ -17,6 +17,7 @@ export interface QuestProgress {
 }
 
 export interface QuestListItem {
+  image:       string | null;
   id:          number;
   slug:        string;
   title:       string;
