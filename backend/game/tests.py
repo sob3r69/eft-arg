@@ -1,9 +1,10 @@
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .models import Quest, QuestObjective, QuestRequirement, Submission, Trader
-from .services import approve_submission
+from .services import approve_submission, reject_submission
 
 
 class GameFlowTests(APITestCase):
@@ -29,6 +30,62 @@ class GameFlowTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Submission.objects.count(), 1)
         self.assertEqual(response.data["status"], Submission.Status.PENDING)
+        self.objective.refresh_from_db()
+        self.assertEqual(self.objective.current_amount, 0)
+
+    def test_review_status_is_exposed_and_rejected_submission_can_be_retried(self):
+        detail_url = reverse("quest-detail", args=[self.quest.pk])
+        submit_url = reverse("objective-submit", args=[self.objective.pk])
+        self.assertIsNone(self.client.get(detail_url).data["objectives"][0]["latest_submission"])
+        self.client.post(submit_url, {"amount": 1}, format="json")
+        detail = self.client.get(detail_url).data
+        self.assertEqual(detail["objectives"][0]["latest_submission"]["status"], "pending")
+        reject_submission(Submission.objects.get(), "Предмет не передан")
+        detail = self.client.get(detail_url).data
+        self.assertEqual(detail["objectives"][0]["latest_submission"]["admin_comment"], "Предмет не передан")
+        self.assertEqual(detail["objectives"][0]["current_amount"], 0)
+        response = self.client.post(submit_url, {"amount": 2}, format="json")
+        self.assertEqual(response.status_code, 201)
+        approve_submission(Submission.objects.get(pk=response.data["id"]))
+        detail = self.client.get(detail_url).data
+        self.assertEqual(detail["status"], "active")
+        self.assertTrue(detail["objectives"][0]["completed"])
+        self.assertEqual(detail["objectives"][0]["latest_submission"]["status"], "approved")
+
+    def test_amount_cannot_exceed_remaining_progress(self):
+        response = self.client.post(reverse("objective-submit", args=[self.objective.pk]), {"amount": 3})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Submission.objects.exists())
+
+    def test_admin_review_buttons_update_progress_and_ignore_status_tampering(self):
+        admin = get_user_model().objects.create_superuser(username="reviewer", password="test-password")
+        self.client.force_login(admin)
+        submission = Submission.objects.create(objective=self.objective, amount=2)
+        url = reverse("admin:game_submission_change", args=[submission.pk])
+        response = self.client.get(url)
+        self.assertContains(response, 'name="_approve"')
+        self.client.post(url, {"admin_comment": "", "status": "approved", "_save": "Save"})
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, "pending")
+        self.client.post(url, {"admin_comment": "Получено", "_approve": "yes"})
+        self.objective.refresh_from_db()
+        self.assertTrue(self.objective.completed)
+        self.assertEqual(self.objective.current_amount, 2)
+        self.client.post(url, {"admin_comment": "Получено", "_approve": "yes"})
+        self.objective.refresh_from_db()
+        self.assertEqual(self.objective.current_amount, 2)
+
+    def test_admin_reject_preserves_progress_and_returns_comment(self):
+        admin = get_user_model().objects.create_superuser(username="reviewer", password="test-password")
+        self.client.force_login(admin)
+        submission = Submission.objects.create(objective=self.objective, amount=1)
+        url = reverse("admin:game_submission_change", args=[submission.pk])
+        self.client.post(url, {"admin_comment": "Не получено", "_reject": "yes"})
+        submission.refresh_from_db()
+        self.objective.refresh_from_db()
+        self.assertEqual(submission.status, "rejected")
+        self.assertEqual(submission.admin_comment, "Не получено")
+        self.assertEqual(self.objective.current_amount, 0)
 
     def test_approve_submission_increases_objective_progress(self):
         submission = Submission.objects.create(objective=self.objective, amount=1)
@@ -58,13 +115,42 @@ class GameFlowTests(APITestCase):
         self.assertTrue(self.objective.completed)
         self.assertIsNotNone(self.objective.completed_at)
 
-    def test_quest_completion_when_all_objectives_completed(self):
+    def test_quest_waits_for_player_after_all_objectives_completed(self):
         submission = Submission.objects.create(objective=self.objective, amount=2)
 
         approve_submission(submission)
         self.quest.refresh_from_db()
 
+        self.assertEqual(self.quest.status, Quest.Status.ACTIVE)
+        url = reverse("quest-complete", args=[self.quest.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], Quest.Status.COMPLETED)
+        self.assertEqual(self.client.post(url).status_code, 200)
+        self.quest.refresh_from_db()
         self.assertEqual(self.quest.status, Quest.Status.COMPLETED)
+
+    def test_cannot_complete_quest_with_unfinished_or_pending_objectives(self):
+        url = reverse("quest-complete", args=[self.quest.pk])
+        self.assertEqual(self.client.post(url).status_code, 400)
+        submission = Submission.objects.create(objective=self.objective, amount=1)
+        self.assertEqual(self.client.post(url).status_code, 400)
+        approve_submission(submission)
+        self.assertEqual(self.client.post(url).status_code, 400)
+        self.quest.refresh_from_db()
+        self.assertEqual(self.quest.status, Quest.Status.ACTIVE)
+
+    def test_cannot_complete_quest_without_objectives(self):
+        self.objective.delete()
+        self.assertEqual(self.client.post(reverse("quest-complete", args=[self.quest.pk])).status_code, 400)
+
+    def test_cannot_complete_non_active_quest(self):
+        self.objective.completed = True
+        self.objective.save()
+        for quest_status in [Quest.Status.LOCKED, Quest.Status.AVAILABLE]:
+            self.quest.status = quest_status
+            self.quest.save()
+            self.assertEqual(self.client.post(reverse("quest-complete", args=[self.quest.pk])).status_code, 400)
 
     def test_locked_quest_becomes_available_after_requirements_completed(self):
         next_quest = Quest.objects.create(
@@ -77,6 +163,11 @@ class GameFlowTests(APITestCase):
         submission = Submission.objects.create(objective=self.objective, amount=2)
 
         approve_submission(submission)
+        next_quest.refresh_from_db()
+
+        self.assertEqual(next_quest.status, Quest.Status.LOCKED)
+        response = self.client.post(reverse("quest-complete", args=[self.quest.pk]))
+        self.assertEqual(response.status_code, 200)
         next_quest.refresh_from_db()
 
         self.assertEqual(next_quest.status, Quest.Status.AVAILABLE)

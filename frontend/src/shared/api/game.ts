@@ -28,18 +28,19 @@ export interface QuestListItem {
 }
 
 export interface QuestObjective {
-  id:              number;
-  type:            string;
-  title:           string;
-  description:     string;
-  required_amount: number;
-  current_amount:  number;
-  completed:       boolean;
-  completed_at:    string | null;
-  sort_order:      number;
-  metadata:        Record<string, unknown>;
-  item:            unknown | null;
-  location:        unknown | null;
+  latest_submission: Submission | null;
+  id:                number;
+  type:              string;
+  title:             string;
+  description:       string;
+  required_amount:   number;
+  current_amount:    number;
+  completed:         boolean;
+  completed_at:      string | null;
+  sort_order:        number;
+  metadata:          Record<string, unknown>;
+  item:              unknown | null;
+  location:          unknown | null;
 }
 
 export interface QuestDetail extends QuestListItem {
@@ -70,6 +71,15 @@ export interface SubmissionPayload {
   amount:   number;
   comment?: string;
   proof?:   string;
+}
+
+export interface Submission {
+  id:            number;
+  objective:     number;
+  amount:        number;
+  status:        'pending' | 'approved' | 'rejected';
+  admin_comment: string;
+  reviewed_at:   string | null;
 }
 
 interface QuestListParams {
@@ -128,8 +138,14 @@ export function startQuest(id: number) {
 }
 
 export function submitObjective(id: number, payload: SubmissionPayload) {
-  return apiRequest(`/objectives/${id}/submit/`, {
+  return apiRequest<Submission>(`/objectives/${id}/submit/`, {
     method: 'POST',
     body:   JSON.stringify(payload),
+  });
+}
+
+export function completeQuest(id: number) {
+  return apiRequest<QuestDetail>(`/quests/${id}/complete/`, {
+    method: 'POST',
   });
 }

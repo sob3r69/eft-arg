@@ -30,6 +30,11 @@ class LocationSerializer(serializers.ModelSerializer):
 class QuestObjectiveSerializer(serializers.ModelSerializer):
     item = ItemSerializer(read_only=True)
     location = LocationSerializer(read_only=True)
+    latest_submission = serializers.SerializerMethodField()
+
+    def get_latest_submission(self, objective):
+        submission = next(iter(objective.submissions.all()), None)
+        return SubmissionSerializer(submission).data if submission else None
 
     class Meta:
         model = QuestObjective
@@ -46,6 +51,7 @@ class QuestObjectiveSerializer(serializers.ModelSerializer):
             "metadata",
             "item",
             "location",
+            "latest_submission",
         ]
 
 
@@ -83,7 +89,7 @@ class QuestDetailSerializer(QuestListSerializer):
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ["id", "objective", "amount", "status", "comment", "proof", "created_at"]
+        fields = ["id", "objective", "amount", "status", "comment", "proof", "created_at", "admin_comment", "reviewed_at"]
         read_only_fields = ["id", "objective", "status", "created_at"]
 
 
@@ -105,6 +111,9 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
 
         if objective.quest.status != Quest.Status.ACTIVE:
             raise serializers.ValidationError({"detail": "Submissions are allowed only for active quests."})
+
+        if attrs.get("amount", 1) > objective.required_amount - objective.current_amount:
+            raise serializers.ValidationError({"amount": "Amount exceeds remaining objective progress."})
 
         pending_exists = Submission.objects.filter(
             objective=objective,

@@ -34,7 +34,6 @@ def approve_submission(submission: Submission) -> Submission:
         update_fields.extend(["completed", "completed_at"])
 
     objective.save(update_fields=update_fields)
-    update_quest_status(objective.quest)
 
     return submission
 
@@ -54,17 +53,24 @@ def reject_submission(submission: Submission, admin_comment: str = "") -> Submis
     return submission
 
 
-def update_quest_status(quest: Quest) -> Quest:
+@transaction.atomic
+def complete_quest(quest: Quest) -> Quest:
+    quest = Quest.objects.select_for_update().get(pk=quest.pk)
     if quest.status == Quest.Status.COMPLETED:
         return quest
+
+    if quest.status != Quest.Status.ACTIVE:
+        raise ValidationError({"detail": "Only active quests can be completed."})
 
     has_objectives = quest.objectives.exists()
     has_incomplete_objectives = quest.objectives.filter(completed=False).exists()
 
-    if has_objectives and not has_incomplete_objectives:
-        quest.status = Quest.Status.COMPLETED
-        quest.save(update_fields=["status", "updated_at"])
-        refresh_available_quests()
+    if not has_objectives or has_incomplete_objectives:
+        raise ValidationError({"detail": "All objectives must be completed first."})
+
+    quest.status = Quest.Status.COMPLETED
+    quest.save(update_fields=["status", "updated_at"])
+    refresh_available_quests()
 
     return quest
 

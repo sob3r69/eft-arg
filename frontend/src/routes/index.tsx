@@ -1,10 +1,10 @@
-import type { QuestDetail, QuestListItem, QuestStatus } from '#/shared/api/game';
+import type { QuestDetail, QuestListItem, QuestObjective, QuestStatus } from '#/shared/api/game';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { useTraderSelection } from '#/providers/TraderSelectionProvider';
-import { getQuest, getQuests, startQuest } from '#/shared/api/game';
+import { completeQuest, getQuest, getQuests, startQuest, submitObjective } from '#/shared/api/game';
 
 import classes from './index.module.css';
 
@@ -22,19 +22,21 @@ function HomePage() {
   const [showLocked, setShowLocked] = useState(false);
 
   const questsQuery = useQuery({
-    queryKey: ['quests', selectedTraderSlug],
-    queryFn:  () => getQuests({ trader: selectedTraderSlug }),
+    queryKey:        ['quests', selectedTraderSlug],
+    queryFn:         () => getQuests({ trader: selectedTraderSlug }),
+    refetchInterval: 5000,
   });
 
   const visibleQuests = useMemo(() => {
     return filterQuests(questsQuery.data ?? [], showCompleted, showLocked);
   }, [questsQuery.data, showCompleted, showLocked]);
-  const selectedQuest = visibleQuests.find(quest => quest.id === selectedQuestId) ?? visibleQuests[0] ?? null;
+  const selectedQuest = (questsQuery.data ?? []).find(quest => quest.id === selectedQuestId) ?? visibleQuests[0] ?? null;
 
   const questDetailQuery = useQuery({
-    queryKey: ['quest', selectedQuest?.id],
-    queryFn:  () => getQuest(selectedQuest?.id ?? 0),
-    enabled:  Boolean(selectedQuest),
+    queryKey:        ['quest', selectedQuest?.id],
+    queryFn:         () => getQuest(selectedQuest?.id ?? 0),
+    enabled:         Boolean(selectedQuest),
+    refetchInterval: 3000,
   });
 
   const detail = questDetailQuery.data ?? selectedQuest;
@@ -57,16 +59,41 @@ function HomePage() {
     startQuestMutation.mutate(selectedQuest.id);
   }
 
+  const canComplete = detail?.status === 'active'
+    && detail.progress.total > 0
+    && detail.progress.completed === detail.progress.total;
+  const completeQuestMutation = useMutation({
+    mutationFn: completeQuest,
+    onSuccess:  (quest) => {
+      setSelectedQuestId(quest.id);
+      setShowCompleted(true);
+      queryClient.setQueryData(['quest', quest.id], quest);
+    },
+    onSettled: async (_data, _error, questId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['quests'] }),
+        queryClient.invalidateQueries({ queryKey: ['quest', questId] }),
+        queryClient.invalidateQueries({ queryKey: ['progress'] }),
+      ]);
+    },
+  });
+
   return (
     <div className={classes.root}>
       <section className={classes.questWindow}>
         <header className={classes.questHeader}>
           <button
             className={classes.completeButton}
-            disabled={selectedQuest?.status !== 'active'}
+            hidden={!canComplete}
+            disabled={completeQuestMutation.isPending}
             type="button"
+            onClick={() => {
+              if (detail && canComplete) {
+                completeQuestMutation.mutate(detail.id);
+              }
+            }}
           >
-            ЗАВЕРШИТЬ
+            {completeQuestMutation.isPending ? 'ЗАВЕРШЕНИЕ...' : 'ЗАВЕРШИТЬ'}
           </button>
 
           <div className={classes.questTitle}>
@@ -80,6 +107,9 @@ function HomePage() {
             <span className={classes.loyaltyBadge}>{getQuestLevel(detail)}</span>
           </div>
         </header>
+        {completeQuestMutation.isError && completeQuestMutation.variables === detail?.id && (
+          <p role="alert">Не удалось завершить квест. Попробуйте ещё раз.</p>
+        )}
 
         <div className={classes.content}>
           <aside className={classes.sidebar}>
@@ -172,6 +202,7 @@ function HomePage() {
                   <QuestDetails
                     isPending={startQuestMutation.isPending}
                     quest={detail}
+                    onSelect={() => setSelectedQuestId(detail.id)}
                     onStart={handleStartQuest}
                   />
                 )
@@ -193,6 +224,7 @@ function HomePage() {
 }
 
 interface QuestDetailsProps {
+  onSelect:  () => void;
   quest:     QuestListItem | QuestDetail;
   isPending: boolean;
   onStart:   () => void;
@@ -202,6 +234,7 @@ function QuestDetails({
   quest,
   isPending,
   onStart,
+  onSelect,
 }: QuestDetailsProps) {
   const objectives = 'objectives' in quest ? quest.objectives : [];
   const requirements = 'requirements' in quest ? quest.requirements : [];
@@ -257,7 +290,7 @@ function QuestDetails({
                   {' / '}
                   {objective.required_amount}
                 </em>
-                {objective.completed && <span className={classes.doneMark}>✓</span>}
+                <ObjectiveAction key={objective.id} objective={objective} quest={quest} onSelect={onSelect} />
               </div>
             ))
           : (
@@ -293,6 +326,60 @@ function QuestDetails({
         </div>
       </section>
     </>
+  );
+}
+
+function ObjectiveAction({ objective, quest, onSelect }: { objective: QuestObjective; quest: QuestListItem; onSelect: () => void }) {
+  const queryClient = useQueryClient();
+  const [amount, setAmount] = useState(1);
+  const remaining = objective.required_amount - objective.current_amount;
+  const mutation = useMutation({
+    mutationFn: () => submitObjective(objective.id, { amount }),
+    onMutate:   onSelect,
+    onSuccess:  () => setAmount(1),
+    onSettled:  async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['quest', quest.id] }),
+        queryClient.invalidateQueries({ queryKey: ['quests'] }),
+        queryClient.invalidateQueries({ queryKey: ['progress'] }),
+      ]);
+    },
+  });
+  const latest = objective.latest_submission;
+  const waiting = latest?.status === 'pending' || mutation.isPending;
+
+  if (objective.completed) {
+    return <span className={classes.doneMark} aria-label="Выполнено">✓</span>;
+  }
+
+  if (quest.status !== 'active') {
+    return null;
+  }
+
+  return (
+    <div className={classes.objectiveAction}>
+      {remaining > 1 && !waiting && (
+        <input
+          aria-label={`Количество: ${objective.title}`}
+          type="number"
+          min={1}
+          max={remaining}
+          value={amount}
+          onChange={event => setAmount(event.target.valueAsNumber)}
+        />
+      )}
+      <button
+        type="button"
+        disabled={waiting || !Number.isInteger(amount) || amount < 1 || amount > remaining}
+        onClick={() => mutation.mutate()}
+      >
+        {waiting ? 'Ожидание' : objective.type === 'handover_item' ? 'Передать' : 'На проверку'}
+      </button>
+      {latest?.status === 'rejected' && !waiting && (
+        <small role="status">{latest.admin_comment || 'Заявка отклонена. Можно отправить повторно.'}</small>
+      )}
+      {mutation.isError && <small role="alert">Не удалось отправить заявку. Попробуйте ещё раз.</small>}
+    </div>
   );
 }
 

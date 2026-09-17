@@ -98,14 +98,31 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ["id", "objective", "quest", "status", "amount", "created_at", "reviewed_at"]
     list_filter = ["status", "objective__quest"]
     search_fields = ["objective__title", "comment", "proof", "admin_comment"]
-    readonly_fields = ["created_at", "reviewed_at"]
+    readonly_fields = ["objective", "amount", "status", "comment", "proof", "created_at", "reviewed_at"]
+    change_form_template = "admin/game/submission/change_form.html"
     ordering = ["-created_at", "-id"]
     actions = [approve_selected_submissions, reject_selected_submissions]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def response_change(self, request, obj):
+        if "_approve" in request.POST:
+            approve_submission(obj)
+            self.message_user(request, "Заявка подтверждена. Прогресс обновлён.", messages.SUCCESS)
+        elif "_reject" in request.POST:
+            reject_submission(obj, obj.admin_comment)
+            self.message_user(request, "Заявка отклонена.", messages.SUCCESS)
+        return super().response_change(request, obj)
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
+            .select_related("objective__quest")
             .annotate(
                 pending_first=Case(
                     When(status=Submission.Status.PENDING, then=0),

@@ -53,6 +53,7 @@
 }
 
 .questTitle {
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -375,7 +376,7 @@
 
 .objectiveRow {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) max-content 34px;
+  grid-template-columns: 36px minmax(0, 1fr) max-content minmax(100px, 180px);
   align-items: center;
   gap: 10px;
 
@@ -397,12 +398,50 @@
 }
 
 .objectiveRow strong {
-  overflow: hidden;
+  overflow-wrap: anywhere;
 
   font-weight: 700;
 
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.objectiveAction {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.objectiveAction button,
+.objectiveAction input {
+  min-height: 34px;
+  border: 1px solid #859592;
+  color: #e0e1db;
+  background: #1b2526;
+  font: inherit;
+  font-size: 14px;
+}
+
+.objectiveAction button {
+  min-width: 100px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.objectiveAction button:disabled {
+  color: #adb4b3;
+  cursor: default;
+}
+
+.objectiveAction input {
+  width: 58px;
+}
+
+.objectiveAction small {
+  width: 100%;
+  color: #e7aa98;
+  overflow-wrap: anywhere;
+  font-size: 13px;
 }
 
 .objectiveRow em {
@@ -500,6 +539,14 @@
 }
 
 @media (max-width: 768px) {
+  .objectiveRow {
+    grid-template-columns: 24px minmax(0, 1fr) max-content;
+    padding: 10px;
+  }
+
+  .objectiveAction {
+    grid-column: 2 / -1;
+  }
   .questWindow {
     min-height: auto;
   }
@@ -512,7 +559,12 @@
   }
 
   .completeButton {
-    display: none;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .questTitle {
+    grid-column: 1;
   }
 
   .questTitle {
