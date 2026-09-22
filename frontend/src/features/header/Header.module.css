@@ -217,6 +217,10 @@
 
 .traders {
   display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
 
   flex: 1;
   min-width: 0;
@@ -226,6 +230,7 @@
 
 .trader {
   position: relative;
+  flex: 0 0 112px;
 
   display: flex;
   flex-direction: column;
@@ -508,14 +513,11 @@
     gap: 10px;
   }
 
-  .trader:nth-child(n + 5) {
-    display: none;
-  }
 }
 
 @media (max-width: 768px) {
   .header {
-    height: 56px;
+    height: auto;
   }
 
   .topRow {
@@ -523,7 +525,58 @@
   }
 
   .bottomRow {
-    display: none;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .traders {
+    flex: none;
+    width: 100%;
+    padding: 8px 8px 12px;
+    box-sizing: border-box;
+  }
+
+  .profile {
+    width: 100%;
+    height: auto;
+    min-height: 126px;
+    border-left: 0;
+    border-top: 1px solid rgba(101, 116, 112, 0.5);
+  }
+
+  .profileInfo {
+    min-width: 0;
+    padding: 12px;
+  }
+
+  .profileName {
+    overflow-wrap: anywhere;
+  }
+
+  .profileMoney,
+  .profileStats {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .profileMoney span {
+    white-space: nowrap;
+  }
+
+  .profileDivider {
+    margin-top: 10px;
+  }
+
+  .profileStats {
+    margin-top: 8px;
+  }
+
+  .profileLevel {
+    flex: 0 0 30px;
+  }
+
+  .profileAvatar {
+    flex: 0 0 64px;
   }
 
   .mainNavigation {
