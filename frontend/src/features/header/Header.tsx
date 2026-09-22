@@ -2,6 +2,7 @@ import type { Trader } from '#/shared/api/game';
 import { useQuery } from '@tanstack/react-query';
 
 import { Link } from '@tanstack/react-router';
+import { ChartNoAxesColumnIncreasing, CircleCheck, Crown, Handshake, Headset, ShoppingCart, TimerReset } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTraderSelection } from '#/providers/TraderSelectionProvider';
 import { getTraders } from '#/shared/api/game';
@@ -35,7 +36,7 @@ export function Header() {
             className={classes.navigationItem}
           >
             <span className={classes.navigationIcon}>
-              ♜
+              <ShoppingCart aria-hidden="true" />
             </span>
 
             ТОРГОВЛЯ
@@ -46,7 +47,7 @@ export function Header() {
             className={`${classes.navigationItem} ${classes.navigationItemActive}`}
           >
             <span className={classes.navigationIcon}>
-              ✓
+              <CircleCheck aria-hidden="true" />
             </span>
 
             ЗАДАНИЯ
@@ -57,7 +58,7 @@ export function Header() {
             className={classes.navigationItem}
           >
             <span className={classes.navigationIcon}>
-              ◈
+              <Handshake aria-hidden="true" />
             </span>
 
             УСЛУГИ
@@ -68,7 +69,7 @@ export function Header() {
           type="button"
           className={classes.visitButton}
         >
-          <span>☏</span>
+          <Headset aria-hidden="true" />
           ПОСЕТИТЬ
         </button>
 
@@ -88,6 +89,7 @@ export function Header() {
               type="button"
               className={`${classes.trader} ${trader.id === selectedTraderSlug ? classes.traderActive : ''}`}
               disabled={trader.disabled}
+              aria-pressed={trader.id === selectedTraderSlug}
               onClick={() => {
                 setSelectedTraderSlug(trader.id);
               }}
@@ -111,6 +113,7 @@ export function Header() {
                     }}
                   />
                 )}
+                <span className={classes.traderQuestion} aria-hidden="true">?</span>
               </div>
 
               <div className={classes.traderName}>
@@ -118,12 +121,18 @@ export function Header() {
               </div>
 
               <div className={classes.traderStats}>
-                <span>♟ 3.75</span>
-                <span>◴ 00:31:54</span>
+                <span>
+                  <ChartNoAxesColumnIncreasing aria-hidden="true" />
+                  3.75
+                </span>
+                <span>
+                  <TimerReset aria-hidden="true" />
+                  00:31:54
+                </span>
               </div>
 
               <span className={classes.traderStatus}>
-                ✓
+                <CircleCheck aria-hidden="true" />
               </span>
             </button>
           ))}
@@ -132,7 +141,7 @@ export function Header() {
         <div className={classes.profile}>
           <div className={classes.profileInfo}>
             <strong className={classes.profileName}>
-              groom_01
+              sob3rz (вы)
             </strong>
 
             <div className={classes.profileMoney}>
@@ -142,11 +151,12 @@ export function Header() {
             </div>
 
             <div className={classes.profileDivider} />
+            <span className={classes.profileEmblem} aria-hidden="true" />
 
             <div className={classes.profileStats}>
               <span>
                 Текущее отношение:
-                <strong> III</strong>
+                <strong className={classes.loyaltyLevel}>III</strong>
               </span>
 
               <span>
@@ -154,20 +164,28 @@ export function Header() {
               </span>
 
               <span>
+                <ChartNoAxesColumnIncreasing aria-hidden="true" />
                 3.75
+              </span>
+              <span>₽ 9М (потр.)</span>
+            </div>
+            <div className={`${classes.profileStats} ${classes.nextLevel}`}>
+              <span>
+                Следующий УЛ:
+                <strong className={classes.loyaltyLevel}><Crown aria-hidden="true" /></strong>
+              </span>
+              <span>
+                LVL
+                <b>37</b>
+              </span>
+              <span>
+                <ChartNoAxesColumnIncreasing aria-hidden="true" />
+                <b>5.80</b>
               </span>
             </div>
           </div>
 
-          <div className={classes.profileLevel}>
-            29
-          </div>
-
-          <div className={classes.profileAvatar}>
-            <span>
-              ?
-            </span>
-          </div>
+          <div className={classes.profileAvatar} role="img" aria-label="Персонаж, уровень 29" />
         </div>
       </div>
     </header>
