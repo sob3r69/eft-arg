@@ -1,618 +1,152 @@
+.root { width: 100%; min-width: 0; }
 .questWindow {
-  min-height: calc(100dvh - 290px);
-
-  color: #b9bbb3;
-
-  background:
-    radial-gradient(circle at 72% 16%, rgba(45, 67, 68, 0.18), transparent 26%),
-    linear-gradient(180deg, rgba(8, 10, 10, 0.98), rgba(4, 5, 5, 0.98));
-
+  --sidebar-width: clamp(320px, 29.5%, 600px);
+  min-height: calc(100dvh - 244px);
+  padding: 6px 8px 56px 2px;
+  color: #a5aaa6;
+  background: #030607;
   font-family: var(--font-main);
+  letter-spacing: 0;
 }
-
 .questHeader {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 360px;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) auto;
   align-items: center;
-
-  min-height: 64px;
-
-  border: 1px solid #2b2d25;
-
+  min-height: 68px;
+  border: 1px solid #252820;
   background:
-    linear-gradient(90deg, rgba(35, 31, 19, 0.72), rgba(31, 24, 11, 0.92) 72%, rgba(20, 16, 10, 0.88)),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px);
+    repeating-linear-gradient(0deg, #ffffff02 0 1px, transparent 1px 3px),
+    linear-gradient(100deg, #1b1b12, #241b0d 75%, #21190d);
 }
-
 .completeButton {
-  height: 64px;
-
+  align-self: stretch;
+  min-height: 66px;
+  padding: 10px 24px;
   border: 0;
-  border-right: 1px solid #313126;
-
-  color: #777970;
-
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
   background:
-    linear-gradient(90deg, rgba(42, 43, 36, 0.2), rgba(42, 43, 36, 0.68));
-
-  cursor: default;
-
+    repeating-linear-gradient(90deg, #ffffff04 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, #00000012 0 1px, transparent 1px 3px),
+    linear-gradient(100deg, #353b38, #282f2c);
+  color: #d7d6bc;
+  cursor: pointer;
   font-size: 26px;
-  text-transform: uppercase;
-}
-
-.completeButton:not(:disabled) {
-  color: #ded9bd;
-
-  cursor: pointer;
-}
-
-.questTitle {
-  grid-column: 2;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  min-width: 0;
-  padding: 0 26px;
-
-  color: #e0e1db;
-
-  font-size: 28px;
-  line-height: 1.1;
-}
-
-.questTitleIcon {
-  color: #d8ddd8;
-
-  font-size: 27px;
-}
-
-.questMeta {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 24px;
-
-  padding-right: 24px;
-
-  color: #bfc0b7;
-
-  font-size: 19px;
-}
-
-.questMeta strong,
-.rowStatus {
-  color: #d99b2d;
-
-  font-weight: 700;
-}
-
-.loyaltyBadge {
-  display: inline-grid;
-  place-items: center;
-
-  min-width: 25px;
-  height: 25px;
-  padding: 0 5px;
-
-  color: #243033;
-
-  background: #d9dedb;
-
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.content {
-  display: grid;
-  grid-template-columns: 430px minmax(0, 1fr);
-  gap: 16px;
-
-  padding-top: 18px;
-}
-
-.sidebar {
-  min-width: 0;
-
-  border-right: 1px solid #4d514b;
-}
-
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-
-  height: 54px;
-  padding: 0 14px;
-
-  color: #b9bbb4;
-
-  background: rgba(14, 16, 14, 0.92);
-
-  font-size: 20px;
-}
-
-.filters label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  cursor: pointer;
-}
-
-.filters input {
-  width: 20px;
-  height: 20px;
-
-  accent-color: #d5d7ca;
-}
-
-.viewButtons {
-  display: flex;
-  gap: 9px;
-
-  margin-left: auto;
-}
-
-.viewButtons button {
-  display: grid;
-  place-items: center;
-
-  width: 34px;
-  height: 34px;
-
-  border: 1px solid #4b5351;
-
-  color: #e5e5dc;
-
-  background: #2a302f;
-
-  cursor: pointer;
-
-  font-size: 17px;
-}
-
-.questList {
-  max-height: calc(100dvh - 420px);
-  min-height: 540px;
-
-  overflow: auto;
-
-  background: rgba(5, 7, 7, 0.95);
-}
-
-.questGroup {
-  border-bottom: 1px solid #30332e;
-}
-
-.groupTitle,
-.questRow {
-  width: 100%;
-
-  border: 0;
-
-  font-family: inherit;
-
-  text-align: left;
-}
-
-.groupTitle {
-  display: grid;
-  grid-template-columns: 33px minmax(0, 1fr) 28px;
-  align-items: center;
-  gap: 8px;
-
-  min-height: 48px;
-  padding: 0 14px;
-
-  color: #b9bbb4;
-
-  background: #080a0a;
-
-  cursor: default;
-
-  font-size: 19px;
-}
-
-.questRow {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) max-content 20px;
-  align-items: center;
-  gap: 8px;
-
-  min-height: 58px;
-  padding: 0 14px;
-
-  border-top: 1px solid #090908;
-  border-bottom: 1px solid #171714;
-
-  color: #bfc1b7;
-
-  background:
-    linear-gradient(90deg, rgba(45, 29, 8, 0.9), rgba(28, 19, 7, 0.92));
-
-  cursor: pointer;
-
-  font-size: 19px;
-}
-
-.questRow:hover {
-  filter: brightness(1.12);
-}
-
-.questRowActive {
-  color: #171915;
-
-  background: #b8b8aa;
-}
-
-.rowIcon {
-  color: currentColor;
-
-  font-size: 22px;
-}
-
-.rowTitle {
-  min-width: 0;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.rowArrow {
-  color: currentColor;
-
-  font-size: 26px;
-  font-weight: 700;
-}
-
-.emptyList {
-  padding: 36px 24px;
-
-  color: #8e918a;
-
-  font-size: 20px;
-}
-
-.details {
-  min-width: 0;
-  padding-right: 16px;
-}
-
-.detailIntro {
-  display: grid;
-  grid-template-columns: minmax(280px, 36%) minmax(0, 1fr);
-  gap: 28px;
-}
-
-.questImage {
-  position: relative;
-  align-self: start;
-  aspect-ratio: 4 / 3;
-  display: grid;
-  place-items: center;
-
-  min-height: 0;
-
-  border: 1px solid #3d4542;
-
-  color: #d9dacd;
-
-  background:
-    linear-gradient(135deg, rgba(114, 126, 113, 0.28), rgba(15, 21, 21, 0.92)),
-    radial-gradient(circle at 55% 30%, rgba(219, 221, 199, 0.25), transparent 38%);
-
-  font-size: 28px;
-}
-
- .questImage img {
-  display: block;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
- .questText {
-  min-width: 0;
-  padding: 0 0 12px;
-
-  color: #aeb2af;
-
-  font-size: 22px;
-  line-height: 1.28;
-}
-
-.questText p {
-  margin: 0 0 24px;
-}
-
-.requirements {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-
-  margin-bottom: 20px;
-
-  color: #8f948f;
-
-  font-size: 16px;
-}
-
-.requirements strong {
-  color: #d0d1c8;
-}
-
-.startButton {
-  padding: 12px 22px;
-
-  border: 1px solid #b9ac75;
-
-  color: #161a18;
-
-  background: #c5bb8a;
-
-  cursor: pointer;
-
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.startButton:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-
-.objectives,
-.rewards {
-  margin-top: 22px;
-}
-
-.objectives h2,
-.rewards h2 {
-  margin: 0 0 10px;
-
-  color: #aeb2ad;
-
-  font-size: 20px;
   font-weight: 400;
 }
-
-.objectiveRow {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) max-content minmax(100px, 180px);
-  align-items: center;
-  gap: 10px;
-
-  min-height: 54px;
-  margin-bottom: 7px;
-  padding: 0 22px;
-
-  color: #c6cac8;
-
-  background: #2a2c2e;
-
-  font-size: 20px;
+.completeButton:disabled { color: #5c6159; cursor: default; background-color: #282c29; }
+.completeButton:not(:disabled):hover { filter: brightness(1.2); }
+.questTitle { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 14px; color: #d6d8c9; font-size: 28px; line-height: 1.15; }
+.questTitle > span:last-child { overflow-wrap: anywhere; }
+.questTitleIcon { display: flex; flex: none; }
+.questTitleIcon svg { width: 25px; height: 25px; }
+.questMeta { display: flex; align-items: center; gap: 30px; padding: 10px 24px; font-size: 20px; white-space: nowrap; }
+.questMeta strong, .rowStatus { color: #b5802b; font-weight: 400; }
+.loyaltyBadge { display: inline-grid; place-items: center; flex: none; width: 23px; height: 24px; color: #34413f; background: linear-gradient(#d9e3df,#b8c4c0); font-size: 17px; font-weight: 700; line-height: 1; }
+.content { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); gap: 12px; padding-top: 18px; }
+.sidebar { min-width: 0; border-right: 2px solid #4a534e; }
+.filters { display: flex; align-items: center; gap: 28px; min-height: 54px; padding: 8px 16px; background: #22261f; font-size: 20px; }
+.filters label { display: flex; align-items: center; gap: 12px; cursor: pointer; white-space: nowrap; }
+.filters input { appearance: none; width: 21px; height: 21px; flex: none; margin: 0; border: 2px solid #858875; background: #181d16; cursor: pointer; }
+.filters input:checked { background: #bfc4ab; box-shadow: inset 0 0 0 4px #252c23; }
+.filters input:focus-visible { outline: 2px solid #dde3d3; outline-offset: 3px; }
+.viewButtons { display: flex; flex: none; gap: 10px; margin-left: auto; }
+.viewButtons button { display: grid; place-items: center; width: 36px; height: 32px; padding: 6px; border: 0; color: #a3b0ae; background: #0d1211; cursor: pointer; }
+.viewButtons button[aria-pressed='true'] { background: #58615b; clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); }
+.viewButtons svg { width: 21px; height: 21px; }
+.questList { height: max(400px, calc(100dvh - 392px)); overflow: auto; scrollbar-width: thin; scrollbar-color: #97a7a5 #1a2222; background: #020506; }
+.questGroup { border-bottom: 1px solid #32382f; }
+.groupTitle { display: grid; grid-template-columns: 24px minmax(0,1fr) 24px; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 8px 14px; border: 0; border-bottom: 2px solid #2a302a; background: #030708; color: #9ba6a6; font: inherit; font-size: 20px; text-align: left; cursor: pointer; }
+.groupTitle svg { width: 22px; height: 22px; stroke-width: 3; }
+.groupTitle[aria-expanded='false'] svg { transform: rotate(180deg); }
+.questRow { display: grid; grid-template-columns: 27px minmax(0,1fr) max-content 14px; align-items: center; gap: 8px; width: 100%; min-height: 72px; padding: 12px 10px; border: 0; border-top: 3px solid #060905; border-bottom: 2px solid #080b05; background: linear-gradient(100deg,#231a0d,#21190c); color: #bab9a7; font: inherit; font-size: 20px; text-align: left; cursor: pointer; }
+.questRow:hover { filter: brightness(1.13); }
+.questRowActive { background: #aaa998; color: #171c18; }
+.questRowActive .rowStatus { color: inherit; }
+.rowIcon { display: flex; }
+.rowIcon svg { width: 25px; height: 25px; }
+.rowTitle { min-width: 0; overflow-wrap: anywhere; }
+.rowArrow { width: 16px; height: 20px; visibility: hidden; }
+.questRowActive .rowArrow { visibility: visible; }
+.questListGrid .questGroup { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; }
+.questListGrid .groupTitle { grid-column: 1 / -1; }
+.questListGrid .questRow { grid-template-columns: 25px minmax(0,1fr); align-content: start; min-height: 116px; }
+.questListGrid .rowStatus { grid-column: 2; font-size: 16px; }
+.questListGrid .rowArrow { display: none; }
+.details { min-width: 0; padding-right: 12px; }
+.detailIntro { display: grid; grid-template-columns: minmax(0,33%) minmax(0,1fr); gap: 26px; }
+.questImage { position: relative; display: grid; place-items: center; align-self: start; width: 100%; aspect-ratio: 1.72; border: 2px solid #39413d; background: #101615; color: #8f9c94; font-size: 24px; }
+.questImage img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.questText { min-width: 0; color: #a4aeac; font-size: 20px; line-height: 1.12; overflow-wrap: anywhere; }
+.questText p { margin: 0 0 22px; white-space: pre-line; }
+.requirements { display: flex; flex-wrap: wrap; gap: 8px; font-size: 16px; }
+.requirements strong { color: #c5c8b9; }
+.objectives { margin-top: 20px; }
+.objectives h2, .rewards h2 { margin: 0 0 10px; color: #a8b2b0; font-size: 20px; font-weight: 400; }
+.objectiveRow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 16px; min-height: 54px; margin-bottom: 6px; padding: 10px 20px; background: #292d30; color: #a9b6ba; font-size: 20px; }
+.objectiveRowDone { background: #112229; }
+.objectiveLabel { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 100%; }
+.objectiveLabel svg { width: 24px; height: 24px; flex: none; }
+.objectiveLabel strong { overflow-wrap: anywhere; font-weight: 700; }
+.objectiveRow em { color: #91a0a0; font-size: 15px; font-style: normal; white-space: nowrap; }
+.doneMark { width: 28px; height: 28px; flex: none; color: #adf0ff; filter: drop-shadow(0 0 4px #16ceff); stroke-width: 3; }
+.objectiveAction { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; max-width: 100%; }
+.objectiveAction button, .objectiveAction input { min-height: 32px; border: 1px solid #6e807d; color: #c8d4ce; background: #1c2a2b; font: inherit; font-size: 14px; }
+.objectiveAction button { min-width: 106px; padding: 5px 12px; cursor: pointer; }
+.objectiveAction button:disabled { color: #879892; cursor: default; }
+.objectiveAction input { width: 58px; padding-left: 6px; }
+.objectiveAction small { flex-basis: 100%; max-width: 360px; color: #d9a696; font-size: 13px; overflow-wrap: anywhere; }
+.rewards { margin-top: 20px; }
+.rewardGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; background: #090d0e; }
+.rewardItem { display: flex; align-items: center; gap: 10px; flex: 0 1 264px; min-width: 0; min-height: 76px; padding: 4px 8px; background: linear-gradient(100deg,#171b1b,#121617); color: #babfb4; }
+.rewardItem > span { display: grid; place-items: center; flex: 0 0 68px; height: 68px; border: 2px solid #353c37; background: #080d0d; color: #d7e4e0; font-size: 18px; font-weight: 800; }
+.rewardItem svg { width: 34px; height: 34px; }
+.rewardItem small { display: block; color: #92988b; font-size: 13px; text-transform: uppercase; }
+.rewardItem strong { display: block; font-size: 15px; overflow-wrap: anywhere; }
+.emptyList, .emptyDetails { padding: 28px 20px; color: #98a59c; }
+.emptyDetails h2 { font-size: 24px; }
+.error { padding: 8px 16px; margin: 0; color: #e4a58e; font-size: 16px; }
+@media (max-width: 1600px) {
+  .filters { flex-wrap: wrap; gap: 10px 18px; font-size: 16px; }
+  .filters label { gap: 8px; }
+  .questMeta { gap: 16px; font-size: 17px; }
+  .questRow { font-size: 18px; min-height: 64px; }
+  .groupTitle { font-size: 17px; }
+  .questTitle { font-size: 24px; }
+  .questText { font-size: 18px; line-height: 1.2; }
 }
-
-.objectiveRow:nth-child(even),
-.objectiveRowDone {
-  background:
-    linear-gradient(90deg, rgba(14, 38, 45, 0.86), rgba(13, 24, 27, 0.92));
-}
-
-.objectiveRow strong {
-  overflow-wrap: anywhere;
-
-  font-weight: 700;
-
-}
-
-.objectiveAction {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 8px 0;
-}
-
-.objectiveAction button,
-.objectiveAction input {
-  min-height: 34px;
-  border: 1px solid #859592;
-  color: #e0e1db;
-  background: #1b2526;
-  font: inherit;
-  font-size: 14px;
-}
-
-.objectiveAction button {
-  min-width: 100px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-.objectiveAction button:disabled {
-  color: #adb4b3;
-  cursor: default;
-}
-
-.objectiveAction input {
-  width: 58px;
-}
-
-.objectiveAction small {
-  width: 100%;
-  color: #e7aa98;
-  overflow-wrap: anywhere;
-  font-size: 13px;
-}
-
-.objectiveRow em {
-  color: #8d938e;
-
-  font-size: 15px;
-  font-style: normal;
-}
-
-.doneMark {
-  color: #82eaff;
-
-  font-size: 26px;
-  text-shadow: 0 0 8px #00c8ff;
-}
-
-.rewardGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.rewardItem {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  min-height: 76px;
-  padding: 0 20px;
-
-  color: #b8bbb5;
-
-  background:
-    linear-gradient(90deg, rgba(20, 22, 23, 0.96), rgba(32, 33, 32, 0.86));
-}
-
-.rewardItem span {
-  display: grid;
-  place-items: center;
-
-  width: 54px;
-  height: 54px;
-
-  border: 1px solid #515956;
-
-  color: #e9ece8;
-
-  background: #141717;
-
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.rewardItem strong {
-  font-size: 16px;
-}
-
-.emptyDetails {
-  padding: 80px 48px;
-
-  color: #aeb2ad;
-}
-
-.emptyDetails h2 {
-  margin: 0 0 12px;
-
-  color: #dadbd2;
-
-  font-size: 32px;
-}
-
-.emptyDetails p {
-  margin: 0;
-
-  font-size: 20px;
-}
-
 @media (max-width: 1100px) {
-  .detailIntro {
-    grid-template-columns: 1fr;
-  }
-  .questHeader {
-    grid-template-columns: 210px minmax(0, 1fr);
-  }
-
-  .questMeta {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-
-    padding: 0 18px 12px;
-
-    font-size: 15px;
-  }
-
-  .content {
-    grid-template-columns: 360px minmax(0, 1fr);
-  }
+  .questWindow { --sidebar-width: 310px; }
+  .questHeader { grid-template-columns: var(--sidebar-width) minmax(0,1fr); }
+  .questMeta { grid-column: 2; justify-content: flex-end; padding: 0 14px 10px; }
+  .completeButton { grid-row: 1 / 3; }
+  .detailIntro { grid-template-columns: 1fr; gap: 16px; }
+  .questImage { max-width: 460px; }
+  .questRow { grid-template-columns: 24px minmax(0,1fr) 14px; }
+  .rowStatus { grid-column: 2; font-size: 15px; }
+  .rowArrow { grid-column: 3; grid-row: 1 / 3; }
+  .objectiveRow { font-size: 18px; }
 }
-
 @media (max-width: 768px) {
-  .objectiveRow {
-    grid-template-columns: 24px minmax(0, 1fr) max-content;
-    padding: 10px;
-  }
-
-  .objectiveAction {
-    grid-column: 2 / -1;
-  }
-  .questWindow {
-    min-height: auto;
-  }
-
-  .questHeader,
-  .content,
-  .detailIntro,
-  .rewardGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .completeButton {
-    height: 48px;
-    font-size: 20px;
-  }
-
-  .questTitle {
-    grid-column: 1;
-  }
-
-  .questTitle {
-    min-height: 56px;
-
-    font-size: 20px;
-  }
-
-  .sidebar {
-    border-right: 0;
-  }
-
-  .filters {
-    flex-wrap: wrap;
-
-    height: auto;
-    padding: 12px;
-
-    font-size: 15px;
-  }
-
-  .questList {
-    max-height: 320px;
-    min-height: 220px;
-  }
-
-  .details {
-    padding: 0;
-  }
-
-  .questImage {
-    min-height: 0;
-  }
-
-
-  .questText,
-  .objectiveRow {
-    font-size: 16px;
-  }
+  .questWindow { padding: 0 0 36px; }
+  .questHeader { grid-template-columns: 122px minmax(0,1fr); min-height: 74px; }
+  .completeButton { padding: 8px 14px 8px 5px; font-size: 17px; min-height: 74px; }
+  .questTitle { gap: 7px; padding: 10px 8px; font-size: 19px; }
+  .questTitleIcon svg { width: 19px; height: 19px; }
+  .questMeta { gap: 8px; padding: 0 8px 8px; flex-wrap: wrap; font-size: 13px; white-space: normal; }
+  .loyaltyBadge { width: 20px; height: 21px; font-size: 15px; }
+  .content { grid-template-columns: 1fr; gap: 18px; padding-top: 12px; }
+  .sidebar { border-right: 0; }
+  .filters { padding: 10px; }
+  .questList { height: auto; max-height: 300px; min-height: 100px; }
+  .groupTitle { min-height: 44px; font-size: 16px; }
+  .questRow { min-height: 60px; }
+  .details { padding: 0; }
+  .detailIntro { gap: 14px; }
+  .questImage { max-width: none; }
+  .questText { font-size: 16px; line-height: 1.3; }
+  .objectiveRow { padding: 10px; font-size: 16px; }
+  .objectiveLabel { justify-content: flex-start; }
+  .rewardItem { flex: 1 1 140px; min-height: 62px; }
+  .rewardItem > span { flex-basis: 48px; height: 48px; }
+  .rewardItem svg { width: 26px; height: 26px; }
 }

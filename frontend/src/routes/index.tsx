@@ -2,6 +2,7 @@ import type { QuestDetail, QuestListItem, QuestObjective, QuestStatus } from '#/
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createFileRoute } from '@tanstack/react-router';
+import { Banknote, ChartNoAxesColumnIncreasing, Check, ChevronRight, ChevronUp, Hand, Hash, LayoutGrid, List, LockKeyhole, MapPin, QrCode } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTraderSelection } from '#/providers/TraderSelectionProvider';
 import { completeQuest, getQuest, getQuests, startQuest, submitObjective } from '#/shared/api/game';
@@ -20,6 +21,8 @@ function HomePage() {
   const [selectedQuestId, setSelectedQuestId] = useState<number | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [showLocked, setShowLocked] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [collapsedGroups, setCollapsedGroups] = useState<number[]>([]);
 
   const questsQuery = useQuery({
     queryKey:        ['quests', selectedTraderSlug],
@@ -46,17 +49,19 @@ function HomePage() {
     mutationFn: startQuest,
     onSuccess:  (quest) => {
       setSelectedQuestId(quest.id);
+      queryClient.setQueryData(['quest', quest.id], quest);
+      void queryClient.invalidateQueries({ queryKey: ['progress'] });
       void queryClient.invalidateQueries({ queryKey: ['quests'] });
       void queryClient.invalidateQueries({ queryKey: ['quest', quest.id] });
     },
   });
 
   function handleStartQuest() {
-    if (!selectedQuest || selectedQuest.status !== 'available') {
+    if (!detail || detail.status !== 'available') {
       return;
     }
 
-    startQuestMutation.mutate(selectedQuest.id);
+    startQuestMutation.mutate(detail.id);
   }
 
   const canComplete = detail?.status === 'active'
@@ -84,16 +89,18 @@ function HomePage() {
         <header className={classes.questHeader}>
           <button
             className={classes.completeButton}
-            hidden={!canComplete}
-            disabled={completeQuestMutation.isPending}
+            disabled={startQuestMutation.isPending || completeQuestMutation.isPending || !(detail?.status === 'available' || canComplete)}
             type="button"
             onClick={() => {
-              if (detail && canComplete) {
+              if (detail?.status === 'available') {
+                handleStartQuest();
+              }
+              else if (detail && canComplete) {
                 completeQuestMutation.mutate(detail.id);
               }
             }}
           >
-            {completeQuestMutation.isPending ? 'ЗАВЕРШЕНИЕ...' : 'ЗАВЕРШИТЬ'}
+            {startQuestMutation.isPending ? 'ПРИНЯТИЕ...' : completeQuestMutation.isPending ? 'ЗАВЕРШЕНИЕ...' : detail?.status === 'available' || detail?.status === 'locked' ? 'ПРИНЯТЬ' : 'ЗАВЕРШИТЬ'}
           </button>
 
           <div className={classes.questTitle}>
@@ -104,11 +111,14 @@ function HomePage() {
           <div className={classes.questMeta}>
             <span>Любая локация</span>
             <strong>{getStatusLabel(detail?.status)}</strong>
-            <span className={classes.loyaltyBadge}>{getQuestLevel(detail)}</span>
+            <span className={classes.loyaltyBadge}>{['I', 'II', 'III', 'IV'][getQuestLevel(detail) - 1]}</span>
           </div>
         </header>
+        {startQuestMutation.isError && startQuestMutation.variables === detail?.id && (
+          <p className={classes.error} role="alert">Не удалось принять квест. Попробуйте ещё раз.</p>
+        )}
         {completeQuestMutation.isError && completeQuestMutation.variables === detail?.id && (
-          <p role="alert">Не удалось завершить квест. Попробуйте ещё раз.</p>
+          <p className={classes.error} role="alert">Не удалось завершить квест. Попробуйте ещё раз.</p>
         )}
 
         <div className={classes.content}>
@@ -139,21 +149,27 @@ function HomePage() {
               <div className={classes.viewButtons}>
                 <button
                   aria-label="Список"
+                  title="Список"
+                  aria-pressed={viewMode === 'list'}
+                  onClick={() => setViewMode('list')}
                   type="button"
                 >
-                  ▦
+                  <List aria-hidden="true" />
                 </button>
 
                 <button
                   aria-label="Сетка"
+                  title="Сетка"
+                  aria-pressed={viewMode === 'grid'}
+                  onClick={() => setViewMode('grid')}
                   type="button"
                 >
-                  ▦
+                  <LayoutGrid aria-hidden="true" />
                 </button>
               </div>
             </div>
 
-            <div className={classes.questList}>
+            <div className={`${classes.questList} ${viewMode === 'grid' ? classes.questListGrid : ''}`}>
               {groupedQuests.map(group => (
                 <section
                   key={group.level}
@@ -161,18 +177,21 @@ function HomePage() {
                 >
                   <button
                     className={classes.groupTitle}
+                    aria-expanded={!collapsedGroups.includes(group.level)}
+                    onClick={() => setCollapsedGroups(previous => previous.includes(group.level) ? previous.filter(level => level !== group.level) : [...previous, group.level])}
                     type="button"
                   >
-                    <span className={classes.loyaltyBadge}>{group.level}</span>
+                    <span className={classes.loyaltyBadge}>{['I', 'II', 'III', 'IV'][group.level - 1]}</span>
                     <span>{`УРОВЕНЬ ЛОЯЛЬНОСТИ ${group.level}`}</span>
-                    <span>⌃</span>
+                    <ChevronUp aria-hidden="true" />
                   </button>
 
-                  {group.quests.map(quest => (
+                  {!collapsedGroups.includes(group.level) && group.quests.map(quest => (
                     <button
                       key={quest.id}
                       className={`${classes.questRow} ${quest.id === selectedQuest?.id ? classes.questRowActive : ''}`}
                       type="button"
+                      aria-pressed={quest.id === selectedQuest?.id}
                       onClick={() => {
                         setSelectedQuestId(quest.id);
                       }}
@@ -180,7 +199,7 @@ function HomePage() {
                       <span className={classes.rowIcon}>{getQuestIcon(quest)}</span>
                       <span className={classes.rowTitle}>{quest.title}</span>
                       <span className={classes.rowStatus}>{getStatusLabel(quest.status)}</span>
-                      <span className={classes.rowArrow}>›</span>
+                      <ChevronRight className={classes.rowArrow} aria-hidden="true" />
                     </button>
                   ))}
                 </section>
@@ -200,10 +219,8 @@ function HomePage() {
             {detail
               ? (
                   <QuestDetails
-                    isPending={startQuestMutation.isPending}
                     quest={detail}
                     onSelect={() => setSelectedQuestId(detail.id)}
-                    onStart={handleStartQuest}
                   />
                 )
               : (
@@ -224,21 +241,16 @@ function HomePage() {
 }
 
 interface QuestDetailsProps {
-  onSelect:  () => void;
-  quest:     QuestListItem | QuestDetail;
-  isPending: boolean;
-  onStart:   () => void;
+  onSelect: () => void;
+  quest:    QuestListItem | QuestDetail;
 }
 
 function QuestDetails({
   quest,
-  isPending,
-  onStart,
   onSelect,
 }: QuestDetailsProps) {
   const objectives = 'objectives' in quest ? quest.objectives : [];
   const requirements = 'requirements' in quest ? quest.requirements : [];
-  const canStart = quest.status === 'available';
 
   return (
     <>
@@ -263,16 +275,6 @@ function QuestDetails({
             </div>
           )}
 
-          {canStart && (
-            <button
-              className={classes.startButton}
-              disabled={isPending}
-              type="button"
-              onClick={onStart}
-            >
-              {isPending ? 'АКТИВАЦИЯ...' : 'НАЧАТЬ ЗАДАНИЕ'}
-            </button>
-          )}
         </div>
       </div>
 
@@ -285,19 +287,22 @@ function QuestDetails({
                 key={objective.id}
                 className={`${classes.objectiveRow} ${objective.completed ? classes.objectiveRowDone : ''}`}
               >
-                <span>{getObjectiveIcon(objective.type)}</span>
-                <strong>{objective.title}</strong>
-                <em>
-                  {objective.current_amount}
-                  {' / '}
-                  {objective.required_amount}
-                </em>
+                <div className={classes.objectiveLabel}>
+                  {getObjectiveIcon(objective.type)}
+                  <strong>{objective.title}</strong>
+                </div>
+                {objective.required_amount > 1 && (
+                  <em>
+                    {objective.current_amount}
+                    {' / '}
+                    {objective.required_amount}
+                  </em>
+                )}
                 <ObjectiveAction key={objective.id} objective={objective} quest={quest} onSelect={onSelect} />
               </div>
             ))
           : (
               <div className={classes.objectiveRow}>
-                <span>✦</span>
                 <strong>Цели появятся после синхронизации</strong>
               </div>
             )}
@@ -309,20 +314,22 @@ function QuestDetails({
         <div className={classes.rewardGrid}>
           <div className={classes.rewardItem}>
             <span>EXP</span>
-            <strong>+10 000</strong>
+            <div>
+              <small>ОПЫТ</small>
+              <strong>+10 000</strong>
+            </div>
           </div>
 
           <div className={classes.rewardItem}>
-            <span>♟</span>
-            <strong>
-              {quest.trader.name}
-              {' '}
-              +0.25
-            </strong>
+            <span><ChartNoAxesColumnIncreasing aria-hidden="true" /></span>
+            <div>
+              <small>{quest.trader.name}</small>
+              <strong>+0,25</strong>
+            </div>
           </div>
 
           <div className={classes.rewardItem}>
-            <span>₽</span>
+            <span><Banknote aria-hidden="true" /></span>
             <strong>Рубли</strong>
           </div>
         </div>
@@ -351,7 +358,7 @@ function ObjectiveAction({ objective, quest, onSelect }: { objective: QuestObjec
   const waiting = latest?.status === 'pending' || mutation.isPending;
 
   if (objective.completed) {
-    return <span className={classes.doneMark} aria-label="Выполнено">✓</span>;
+    return <Check className={classes.doneMark} aria-label="Выполнено" />;
   }
 
   if (quest.status !== 'active') {
@@ -429,33 +436,33 @@ function getQuestLevel(quest: QuestListItem | null | undefined) {
 
 function getQuestIcon(quest: QuestListItem | null | undefined) {
   if (!quest) {
-    return '✦';
+    return <Hand aria-hidden="true" />;
   }
 
   if (quest.status === 'completed') {
-    return '✓';
+    return <Check aria-hidden="true" />;
   }
 
   if (quest.status === 'locked') {
-    return '■';
+    return <LockKeyhole aria-hidden="true" />;
   }
 
-  return '✋';
+  return <Hand aria-hidden="true" />;
 }
 
 function getObjectiveIcon(type: string) {
   switch (type) {
     case 'find_item':
     case 'handover_item':
-      return '✋';
+      return <Hand aria-hidden="true" />;
     case 'visit_location':
-      return '⚑';
+      return <MapPin aria-hidden="true" />;
     case 'enter_code':
-      return '#';
+      return <Hash aria-hidden="true" />;
     case 'scan_qr':
-      return '▣';
+      return <QrCode aria-hidden="true" />;
     default:
-      return '✦';
+      return <Hand aria-hidden="true" />;
   }
 }
 
