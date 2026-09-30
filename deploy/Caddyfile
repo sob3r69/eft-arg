@@ -1,0 +1,37 @@
+{
+	admin off
+	auto_https disable_redirects
+}
+
+{$SITE_ADDRESS:http://:8080} {
+	encode zstd gzip
+
+	# Keep the admin login on this machine while testing over plain HTTP.
+	@remoteAdmin {
+		path /admin /admin/*
+		not remote_ip 127.0.0.1 ::1
+	}
+
+	handle /static/* {
+		uri strip_prefix /static
+		root * {$APP_ROOT}/backend/staticfiles
+		file_server
+	}
+
+	handle /media/* {
+		uri strip_prefix /media
+		root * {$APP_ROOT}/backend/media
+		header X-Content-Type-Options nosniff
+		file_server
+	}
+
+	@django path /api /api/* /admin /admin/*
+	handle @django {
+		respond @remoteAdmin 403
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}

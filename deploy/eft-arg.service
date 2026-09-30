@@ -1,0 +1,18 @@
+[Unit]
+Description=Escape Protocol application
+After=network.target
+
+[Service]
+Type=simple
+User=eft-arg
+WorkingDirectory=/opt/eft-arg
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/opt/eft-arg/backend/.venv/bin/python /opt/eft-arg/deploy/manage.py run
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+KillMode=mixed
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
