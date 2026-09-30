@@ -1,2 +1,4 @@
 .runtime/
 deploy/.env
+.env
+backups/

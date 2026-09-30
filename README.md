@@ -1,5 +1,9 @@
 # Escape Protocol: запуск и деплой
 
+**Для Linux-сервера используйте [Docker Compose](deploy/docker/README.md).**
+На сервере нужны только Docker с Compose и домен. Запуск: `docker compose up -d --build`.
+Инструкция ниже описывает альтернативный запуск без Docker, настроенный для MacBook.
+
 Production-схема для macOS и Linux:
 
 ```text

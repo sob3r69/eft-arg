@@ -1,0 +1,23 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	handle_path /static/* {
+		root * /srv/app/staticfiles
+		file_server
+	}
+
+	handle_path /media/* {
+		root * /srv/app/media
+		header X-Content-Type-Options nosniff
+		file_server
+	}
+
+	@django path /api /api/* /admin /admin/*
+	handle @django {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
