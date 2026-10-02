@@ -3,156 +3,133 @@
   inset: 0;
   z-index: 9999;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+  display: grid;
+  place-items: center;
   overflow: hidden;
 
-  background:
-    radial-gradient(
-      circle at center,
-      #1b1c18 0%,
-      #0d0e0c 55%,
-      #050605 100%
-    );
+  background: #10110f;
+  color: #d5d2c4;
+  font-family: var(--font-main);
 }
 
-.noise {
+.background {
+  position: absolute;
+  inset: -48px;
+
+  background: url('/images/loading/mall-background.png') center / cover no-repeat;
+  filter: blur(24px) saturate(0.35) brightness(0.46);
+  pointer-events: none;
+}
+
+.vignette {
   position: absolute;
   inset: 0;
 
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 10%, rgba(5, 7, 5, 0.65) 100%),
+    linear-gradient(180deg, rgba(8, 10, 8, 0.12), rgba(8, 10, 8, 0.7));
   pointer-events: none;
-
-  opacity: 0.07;
-
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.15) 3px
-    );
 }
 
 .content {
   position: relative;
-  width: min(600px, calc(100% - 40px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(760px, calc(100% - 48px));
 }
 
 .logo {
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: clamp(42px, 8vw, 80px);
-  font-weight: 900;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3.4;
+  object-fit: cover;
 
-  letter-spacing: -4px;
-  line-height: 0.82;
-
-  text-transform: uppercase;
+  filter: invert(1) sepia(0.2) brightness(0.88);
+  opacity: 0.92;
 }
 
-.logo span {
-  display: block;
-
-  color: var(--color-accent);
-
-  font-size: 0.55em;
-  letter-spacing: 8px;
+.loading {
+  width: min(400px, 100%);
+  margin-top: clamp(56px, 12vh, 120px);
 }
 
 .subtitle {
-  margin-top: 28px;
+  margin: 0 0 24px;
 
-  color: var(--color-text-muted);
-
-  font-family: var(--font-mono);
-  font-size: 12px;
-
-  letter-spacing: 4px;
+  color: #a9a58e;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .status {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  min-height: 40px;
 
-  min-height: 24px;
-
-  margin-top: 56px;
-
-  color: var(--color-text);
-
-  font-family: var(--font-mono);
-  font-size: 13px;
-
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
-.statusDot {
-  width: 6px;
-  height: 6px;
-
-  margin-right: 12px;
-
-  background: var(--color-accent);
-
-  box-shadow: 0 0 8px var(--color-accent);
-}
-
-.blink {
-  margin-left: 3px;
-
-  animation: blink 700ms step-end infinite;
+.percentage {
+  flex-shrink: 0;
+  min-width: 4ch;
+  color: #a9a58e;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .progress {
-  height: 3px;
-
-  margin-top: 14px;
-
+  height: 2px;
+  margin-top: 12px;
   overflow: hidden;
-
-  background: #282923;
+  background: rgba(197, 191, 165, 0.18);
 }
 
 .progressBar {
   height: 100%;
-
-  background: var(--color-accent);
-
-  box-shadow: 0 0 8px rgba(194, 178, 128, 0.5);
-
+  background: #a9a58e;
   transition: width 50ms linear;
 }
 
-.progressInfo {
-  display: flex;
-  justify-content: space-between;
+@media (max-width: 480px) {
+  .content {
+    width: calc(100% - 36px);
+  }
 
-  margin-top: 9px;
+  .status {
+    font-size: 14px;
+  }
 
-  color: #66675f;
-
-  font-family: var(--font-mono);
-  font-size: 10px;
-
-  letter-spacing: 2px;
+  .subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
 }
 
-.version {
-  margin-top: 60px;
+@media (max-height: 480px) {
+  .content {
+    width: min(480px, calc(100% - 48px));
+  }
 
-  color: #454640;
+  .loading {
+    margin-top: 24px;
+  }
 
-  font-family: var(--font-mono);
-  font-size: 9px;
-
-  letter-spacing: 2px;
+  .subtitle {
+    margin-bottom: 12px;
+  }
 }
 
-@keyframes blink {
-  50% {
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .progressBar {
+    transition: none;
   }
 }

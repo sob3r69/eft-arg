@@ -37,47 +37,47 @@ export function LoadingScreen({
   );
 
   return (
-    <div className={classes.root}>
-      <div className={classes.noise} />
+    <div className={classes.root} aria-label="Загрузка рейда" aria-busy="true">
+      <div className={classes.background} aria-hidden="true" />
+      <div className={classes.vignette} aria-hidden="true" />
 
       <section className={classes.content}>
-        <div className={classes.logo}>
-          ESCAPE
-          <span>PROTOCOL</span>
-        </div>
+        <img
+          className={classes.logo}
+          src="/images/loading/holostyak-logo.png"
+          alt="Escape From Holostyak"
+          width={1642}
+          height={958}
+          fetchPriority="high"
+        />
 
-        <p className={classes.subtitle}>
-          LOCAL SECURE TERMINAL
-        </p>
+        <div className={classes.loading}>
+          <p className={classes.subtitle}>Подготовка к рейду</p>
 
-        <div className={classes.status}>
-          <span className={classes.statusDot} />
+          <div className={classes.status} role="status" aria-live="polite">
+            <span>{LOADING_MESSAGES[messageIndex]}</span>
+            <span className={classes.percentage}>
+              {progress}
+              %
+            </span>
+          </div>
 
-          {LOADING_MESSAGES[messageIndex]}
-          <span className={classes.blink}>_</span>
-        </div>
-
-        <div className={classes.progress}>
           <div
-            className={classes.progressBar}
-            style={{
-              width: `${progress}%`,
-            }}
-          />
+            className={classes.progress}
+            role="progressbar"
+            aria-label="Подготовка к рейду"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+          >
+            <div
+              className={classes.progressBar}
+              style={{
+                width: `${progress}%`,
+              }}
+            />
+          </div>
         </div>
-
-        <div className={classes.progressInfo}>
-          <span>LOADING</span>
-
-          <span>
-            {progress.toString().padStart(3, '0')}
-            %
-          </span>
-        </div>
-
-        <p className={classes.version}>
-          BUILD 0.14.9 // SECURE CONNECTION
-        </p>
       </section>
     </div>
   );
