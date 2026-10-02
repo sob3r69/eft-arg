@@ -1,6 +1,7 @@
 from django.urls import reverse
 from io import BytesIO
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import modelform_factory
 from PIL import Image
@@ -10,6 +11,7 @@ from rest_framework.test import APITestCase
 
 from .models import Quest, QuestObjective, QuestRequirement, Submission, Trader
 from .services import approve_submission, reject_submission
+from .telegram import handle_update, sync_submissions
 
 
 class GameFlowTests(APITestCase):
@@ -232,3 +234,84 @@ class GameFlowTests(APITestCase):
         response = self.client.post(url, {"amount": 1}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TelegramReviewTests(APITestCase):
+    def setUp(self):
+        trader = Trader.objects.create(name="Прапор", slug="prapor")
+        quest = Quest.objects.create(trader=trader, title="Поиски", slug="search", status=Quest.Status.ACTIVE)
+        self.objective = QuestObjective.objects.create(
+            quest=quest, type=QuestObjective.Type.FIND_ITEM, title="Найти предмет", required_amount=2,
+        )
+        self.config = self.settings(
+            TELEGRAM_BOT_TOKEN="test-token",
+            TELEGRAM_CHAT_ID=-100123,
+            TELEGRAM_REVIEWER_IDS={42},
+        )
+        self.config.enable()
+        self.addCleanup(self.config.disable)
+
+    @patch("game.telegram.api_call")
+    def test_send_and_approve_once(self, api):
+        api.return_value = {"message_id": 17}
+        submission = Submission.objects.create(objective=self.objective, amount=2)
+        sync_submissions()
+        submission.refresh_from_db()
+        self.assertEqual(submission.telegram_message_id, 17)
+        self.assertEqual(api.call_args.args[0], "sendMessage")
+        callback = {
+            "callback_query": {
+                "id": "callback-1", "from": {"id": 42},
+                "message": {"message_id": 17, "chat": {"id": -100123}},
+                "data": f"approve:{submission.pk}",
+            }
+        }
+        handle_update(callback)
+        handle_update(callback)
+        self.objective.refresh_from_db()
+        self.assertEqual(self.objective.current_amount, 2)
+        sync_submissions()
+        submission.refresh_from_db()
+        self.assertEqual(submission.telegram_status, Submission.Status.APPROVED)
+        self.assertEqual(api.call_args.args[0], "editMessageText")
+
+    @patch("game.telegram.api_call")
+    def test_reject_and_restrict_reviewers(self, api):
+        submission = Submission.objects.create(objective=self.objective, amount=1, telegram_message_id=17)
+        callback = {
+            "callback_query": {
+                "id": "callback-2", "from": {"id": 43},
+                "message": {"message_id": 17, "chat": {"id": -100123}},
+                "data": f"reject:{submission.pk}",
+            }
+        }
+        handle_update(callback)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.Status.PENDING)
+        callback["callback_query"]["from"]["id"] = 42
+        callback["callback_query"]["message"]["chat"]["id"] = -100999
+        handle_update(callback)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.Status.PENDING)
+        callback["callback_query"]["message"]["chat"]["id"] = -100123
+        callback["callback_query"]["message"]["message_id"] = 18
+        handle_update(callback)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.Status.PENDING)
+        callback["callback_query"]["message"]["message_id"] = 17
+        handle_update(callback)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.Status.REJECTED)
+        self.objective.refresh_from_db()
+        self.assertEqual(self.objective.current_amount, 0)
+
+    @patch("game.telegram.api_call")
+    def test_admin_review_updates_group_message(self, api):
+        submission = Submission.objects.create(
+            objective=self.objective, amount=1, telegram_message_id=17,
+            telegram_status=Submission.Status.PENDING,
+        )
+        reject_submission(submission, "Не получено")
+        sync_submissions()
+        self.assertEqual(api.call_args.args[0], "editMessageText")
+        self.assertIn("Не получено", api.call_args.args[1]["text"])

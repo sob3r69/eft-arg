@@ -98,7 +98,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ["id", "objective", "quest", "status", "amount", "created_at", "reviewed_at"]
     list_filter = ["status", "objective__quest"]
     search_fields = ["objective__title", "comment", "proof", "admin_comment"]
-    readonly_fields = ["objective", "amount", "status", "comment", "proof", "created_at", "reviewed_at"]
+    readonly_fields = [
+        "objective", "amount", "status", "comment", "proof", "created_at", "reviewed_at",
+        "telegram_message_id", "telegram_status",
+    ]
     change_form_template = "admin/game/submission/change_form.html"
     ordering = ["-created_at", "-id"]
     actions = [approve_selected_submissions, reject_selected_submissions]

@@ -44,6 +44,24 @@ docker compose exec backend python manage.py createsuperuser
 
 ## Управление и обновление
 
+Для подтверждения заявок в Telegram:
+
+1. Создайте бота в [@BotFather](https://t.me/BotFather) командой `/newbot` и получите токен.
+2. Добавьте бота в закрытую группу проверяющих. Ему достаточно права писать сообщения.
+3. На сервере добавьте `TELEGRAM_BOT_TOKEN=...` в корневой `.env` и запустите
+   `docker compose --profile telegram up -d --build --wait`.
+4. В группе отправьте `/chatid` и `/id`. Первый ответ — ID группы, второй — ваш Telegram ID.
+   Каждый проверяющий тоже отправляет `/id`.
+5. Запишите в `.env` значения `TELEGRAM_CHAT_ID=-100...` и
+   `TELEGRAM_REVIEWER_IDS=123456,789012`. Перезапустите бота:
+   `docker compose --profile telegram up -d --force-recreate telegram`.
+
+Новые заявки появятся в группе с кнопками «Подтвердить» и «Отклонить».
+Нажимать их могут только пользователи из списка. Отклонение через бота не добавляет
+причину; если она нужна игроку, используйте админку. Решение в админке обновит
+сообщение в группе примерно через 15 секунд. Токен храните только в `.env`.
+Логи процесса: `docker compose logs telegram`.
+
 ```bash
 docker compose ps
 docker compose logs --tail=100 -f

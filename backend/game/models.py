@@ -138,6 +138,8 @@ class Submission(models.Model):
     comment = models.TextField(blank=True)
     proof = models.CharField(max_length=500, blank=True)
     admin_comment = models.TextField(blank=True)
+    telegram_message_id = models.BigIntegerField(null=True, blank=True)
+    telegram_status = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
 
