@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Link } from '@tanstack/react-router';
 import { ChartNoAxesColumnIncreasing, CircleCheck, Crown, Handshake, Headset, ShoppingCart, TimerReset } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTraderSelection } from '#/providers/TraderSelectionProvider';
 import { getPlayerProfile, getTraders } from '#/shared/api/game';
 
@@ -147,7 +147,7 @@ export function Header({ onUnavailableClick }: HeaderProps) {
                 <span>
                   <TimerReset aria-hidden="true" />
                   {/* TRADER FAKE TIMER */}
-                  00:31:54
+                  {trader.reputation === undefined ? '—' : <TraderCountdown />}
                 </span>
               </div>
 
@@ -239,6 +239,42 @@ export function Header({ onUnavailableClick }: HeaderProps) {
       </div>
     </header>
   );
+}
+
+const MAX_TRADER_TIMER_SECONDS = 90 * 60;
+
+function TraderCountdown() {
+  const [seconds, setSeconds] = useState<number | null>(null);
+
+  useEffect(() => {
+    const randomDuration = () => (Math.floor(Math.random() * MAX_TRADER_TIMER_SECONDS) + 1) * 1000;
+    let deadline = Date.now() + randomDuration();
+
+    const tick = () => {
+      const now = Date.now();
+      if (now >= deadline) {
+        deadline = now + randomDuration();
+      }
+      setSeconds(Math.ceil((deadline - now) / 1000));
+    };
+
+    const initialTick = window.setTimeout(tick, 0);
+    const interval = window.setInterval(tick, 1000);
+    return () => {
+      window.clearTimeout(initialTick);
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  if (seconds === null) {
+    return <>—</>;
+  }
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  return <>{[hours, minutes, remainingSeconds].map(value => String(value).padStart(2, '0')).join(':')}</>;
 }
 
 interface TraderCard {
