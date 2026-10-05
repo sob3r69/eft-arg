@@ -358,6 +358,10 @@ function QuestDetails({
               </div>
             </div>
           ))}
+          <div className={classes.rewardItem}>
+            <span aria-hidden="true">?</span>
+            <strong>Неизвестная награда</strong>
+          </div>
         </div>
       </section>
     </>
