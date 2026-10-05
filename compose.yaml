@@ -48,27 +48,6 @@ services:
       retries: 5
     logging: *logging
 
-  telegram:
-    profiles: [telegram]
-    build:
-      context: .
-      dockerfile: deploy/docker/backend.Dockerfile
-    restart: unless-stopped
-    command: ["python", "manage.py", "telegram_bot"]
-    environment:
-      DEBUG: "False"
-      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
-      DATA_DIR: /data
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
-      TELEGRAM_REVIEWER_IDS: ${TELEGRAM_REVIEWER_IDS:-}
-    volumes:
-      - app_data:/data
-    depends_on:
-      backend:
-        condition: service_healthy
-    logging: *logging
-
   caddy:
     image: caddy:2.11.4-alpine
     restart: unless-stopped

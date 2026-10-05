@@ -114,7 +114,6 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ["objective__title", "comment", "proof", "admin_comment"]
     readonly_fields = [
         "objective", "amount", "status", "comment", "proof", "created_at", "reviewed_at",
-        "telegram_message_id", "telegram_status",
     ]
     change_form_template = "admin/game/submission/change_form.html"
     ordering = ["-created_at", "-id"]

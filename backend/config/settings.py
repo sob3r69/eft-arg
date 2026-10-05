@@ -98,10 +98,6 @@ CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE")
 CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE")
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = int(os.getenv("TELEGRAM_CHAT_ID") or 0)
-TELEGRAM_REVIEWER_IDS = {int(value) for value in env_list("TELEGRAM_REVIEWER_IDS")}
-
 # Production Gunicorn is reachable only through the reverse proxy.
 if env_bool("TRUST_PROXY"):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

@@ -1,7 +1,6 @@
 # Escape Protocol: запуск и деплой
 
 **Для Linux-сервера используйте [Docker Compose](deploy/docker/README.md).**
-Настройка Telegram-бота описана в Docker-инструкции.
 На сервере нужны только Docker с Compose и домен. Запуск: `docker compose up -d --build`.
 Инструкция ниже описывает альтернативный запуск без Docker, настроенный для MacBook.
 
@@ -50,11 +49,6 @@ http://192.168.1.10:8080. Админка: http://localhost:8080/admin/.
 На период HTTP-тестирования Caddy разрешает админку только с самого MacBook.
 
 ## Управление
-
-Для Telegram-бота при запуске через Supervisor добавьте в `deploy/.env`
-`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` и `TELEGRAM_REVIEWER_IDS` по инструкции
-для Docker, затем выполните `restart`. Бот работает отдельным процессом; его лог:
-`.runtime/telegram.log`.
 
 ```bash
 backend/.venv/bin/python deploy/manage.py status
