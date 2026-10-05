@@ -9,7 +9,11 @@ import { getTraders } from '#/shared/api/game';
 
 import classes from './Header.module.css';
 
-export function Header() {
+interface HeaderProps {
+  onUnavailableClick: () => void;
+}
+
+export function Header({ onUnavailableClick }: HeaderProps) {
   const { selectedTraderSlug, setSelectedTraderSlug } = useTraderSelection();
 
   const tradersQuery = useQuery({
@@ -34,6 +38,7 @@ export function Header() {
           <button
             type="button"
             className={classes.navigationItem}
+            onClick={onUnavailableClick}
           >
             <span className={classes.navigationIcon}>
               <ShoppingCart aria-hidden="true" />
@@ -56,6 +61,7 @@ export function Header() {
           <button
             type="button"
             className={classes.navigationItem}
+            onClick={onUnavailableClick}
           >
             <span className={classes.navigationIcon}>
               <Handshake aria-hidden="true" />
@@ -68,6 +74,7 @@ export function Header() {
         <button
           type="button"
           className={classes.visitButton}
+          onClick={onUnavailableClick}
         >
           <Headset aria-hidden="true" />
           ПОСЕТИТЬ
@@ -76,6 +83,7 @@ export function Header() {
         <button
           type="button"
           className={classes.backButton}
+          onClick={onUnavailableClick}
         >
           НАЗАД
         </button>

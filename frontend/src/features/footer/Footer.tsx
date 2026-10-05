@@ -1,7 +1,11 @@
 import { NAVIGATION } from './constants';
 import classes from './Footer.module.css';
 
-export function Footer() {
+interface FooterProps {
+  onUnavailableClick: () => void;
+}
+
+export function Footer({ onUnavailableClick }: FooterProps) {
   return (
     <footer className={classes.footer}>
       <nav className={classes.navigation}>
@@ -10,6 +14,7 @@ export function Footer() {
             key={item.label}
             type="button"
             className={classes.item}
+            onClick={onUnavailableClick}
           >
             <span className={classes.icon}>
               {item.icon}

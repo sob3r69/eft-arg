@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { useEffect, useState } from 'react';
 
+import { ErrorModal } from '#/features/error-modal/ErrorModal';
 import { Footer } from '#/features/footer/Footer';
 import { Header } from '#/features/header/Header';
 import { LoadingScreen } from '#/features/loading-screen/LoadingScreen';
@@ -18,6 +19,7 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isErrorOpen, setIsErrorOpen] = useState(false);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -37,13 +39,14 @@ export function AppShell({
 
   return (
     <div className={classes.root}>
-      <Header />
+      <Header onUnavailableClick={() => setIsErrorOpen(true)} />
 
       <main className={classes.main}>
         {children}
       </main>
 
-      <Footer />
+      <Footer onUnavailableClick={() => setIsErrorOpen(true)} />
+      <ErrorModal isOpen={isErrorOpen} onClose={() => setIsErrorOpen(false)} />
     </div>
   );
 }

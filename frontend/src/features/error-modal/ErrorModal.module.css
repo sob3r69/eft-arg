@@ -1,0 +1,63 @@
+.dialog {
+  width: 610px;
+  max-width: calc(100vw - 24px);
+  padding: 3px 3px 15px;
+  border: 1px solid #59605e;
+  color: #bdbdaa;
+  background: #000;
+  font-family: 'Bender', sans-serif;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 65%);
+}
+
+.title {
+  height: 22px;
+  margin: 0;
+  padding: 0 9px;
+  color: #dedede;
+  background: #191b1b;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.message {
+  margin: 14px 0 21px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 29px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.confirmButton {
+  display: block;
+  width: 196px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  background: #000;
+  cursor: pointer;
+}
+
+.confirmButton img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.confirmButton:hover {
+  filter: brightness(1.1);
+}
+
+.confirmButton:focus-visible {
+  outline: 1px solid #dddcc3;
+  outline-offset: 3px;
+}
