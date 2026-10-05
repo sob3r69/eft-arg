@@ -244,7 +244,7 @@
     linear-gradient(110deg, #1c292c, #101616);
   border-left: 1px solid #45544d;
 }
-.profileInfo { position: relative; flex: 1; min-width: 0; padding: 24px 28px 12px 0; text-align: right; }
+.profileInfo { position: relative; flex: 1; min-width: 0; padding: 24px 28px 12px; text-align: right; }
 .profileName { display: block; padding-right: 110px; color: #d5d6b7; font-size: 18px; line-height: 22px; }
 .profileMoney { display: flex; justify-content: flex-end; gap: 18px; margin-top: 10px; padding-right: 110px; font-size: 18px; white-space: nowrap; }
 .profileEmblem { position: absolute; top: 7px; right: 30px; width: 90px; height: 82px; background: url('/images/header/reference.png') -1730px -64px / 2048px 245.37px no-repeat; }
@@ -262,7 +262,7 @@
 .profileLevel { position: absolute; top: 0; left: 0; z-index: 1; display: grid; place-items: center; min-width: 40px; height: 42px; padding: 0 5px; background: #d1dcd7; color: #333e3d; font-size: 24px; font-weight: 700; border-radius: 0 0 6px 0; box-shadow: 0 1px 3px #0008; }
 @media (max-width: 1400px) {
   .profile { flex-basis: 580px; }
-  .profileInfo { padding: 22px 16px 10px 0; }
+  .profileInfo { padding: 22px 16px 10px; }
   .profileName, .profileMoney { padding-right: 82px; }
   .profileMoney { gap: 10px; font-size: 15px; }
   .profileEmblem { right: 10px; }
@@ -290,7 +290,7 @@
   .bottomRow { flex-direction: column; height: auto; }
   .traders { flex: none; width: 100%; padding-bottom: 5px; }
   .profile { flex: none; width: 100%; height: auto; min-height: 172px; border-left: 0; border-top: 1px solid #687060; }
-  .profileInfo { padding: 15px 10px 12px 0; }
+  .profileInfo { padding: 15px 10px 12px; }
   .profileName { padding-right: 60px; font-size: 15px; }
   .profileMoney { padding-right: 0; gap: 10px; margin-top: 12px; font-size: 13px; flex-wrap: wrap; }
   .profileEmblem { top: 2px; right: 6px; transform: scale(0.55); transform-origin: top right; }
@@ -299,5 +299,5 @@
   .profileStats svg { width: 16px; height: 16px; }
   .nextLevel { padding-left: 0; }
   .loyaltyLevel { min-width: 18px; height: 20px; }
-  .profileAvatar { flex-basis: clamp(96px, 26vw, 140px); min-height: 172px; height: auto; align-self: stretch; }
+  .profileAvatar { flex-basis: clamp(120px, 36vw, 194px); min-height: 0; height: auto; aspect-ratio: 194 / 184; align-self: center; }
 }
