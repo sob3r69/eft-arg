@@ -315,3 +315,113 @@ class TelegramReviewTests(APITestCase):
         sync_submissions()
         self.assertEqual(api.call_args.args[0], "editMessageText")
         self.assertIn("Не получено", api.call_args.args[1]["text"])
+
+
+class RewardTests(APITestCase):
+    def setUp(self):
+        GameFlowTests.setUp(self)
+        from decimal import Decimal
+        from .models import PlayerProfile
+        self.profile, _ = PlayerProfile.objects.get_or_create(pk=1)
+        self.profile.rubles = 100
+        self.profile.euros = 20
+        self.profile.dollars = 30
+        self.profile.experience = 9900
+        self.profile.save()
+        self.trader.reputation = Decimal("1.20")
+        self.trader.save()
+        self.quest.reputation_reward = Decimal("0.25")
+        self.quest.rubles_reward = 500
+        self.quest.euros_reward = 10
+        self.quest.dollars_reward = 5
+        self.quest.experience_reward = 100
+        self.quest.save()
+
+    def test_rewards_only_granted_once_at_completion_even_after_status_reset(self):
+        from decimal import Decimal
+        from .services import complete_quest
+        approve_submission(Submission.objects.create(objective=self.objective, amount=2))
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.rubles, 100)
+        complete_quest(self.quest)
+        complete_quest(self.quest)
+        self.quest.status = Quest.Status.ACTIVE
+        self.quest.save(update_fields=["status"])
+        complete_quest(self.quest)
+        self.profile.refresh_from_db()
+        self.trader.refresh_from_db()
+        self.assertEqual((self.profile.rubles, self.profile.euros, self.profile.dollars), (600, 30, 35))
+        self.assertEqual(self.profile.experience, 10000)
+        self.assertEqual(self.profile.level, 2)
+        self.assertEqual(self.trader.reputation, Decimal("1.45"))
+        self.quest.refresh_from_db()
+        self.assertIsNotNone(self.quest.rewards_granted_at)
+
+    def test_failed_completion_does_not_grant_rewards(self):
+        self.assertEqual(self.client.post(reverse("quest-complete", args=[self.quest.pk])).status_code, 400)
+        self.profile.refresh_from_db()
+        self.trader.refresh_from_db()
+        self.assertEqual(self.profile.rubles, 100)
+        self.assertEqual(str(self.trader.reputation), "1.20")
+        self.assertEqual(self.profile.experience, 9900)
+
+    def test_profile_and_rewards_api(self):
+        self.profile.nickname = "Новое имя"
+        self.profile.experience_per_level = 1000
+        self.profile.save()
+        profile = self.client.get(reverse("player-profile")).data
+        self.assertEqual(profile["nickname"], "Новое имя")
+        self.assertEqual(profile["level"], 10)
+        self.assertEqual(profile["rubles"], 100)
+        self.assertEqual(self.client.post(reverse("player-profile"), {"rubles": 999}).status_code, 405)
+        for url in [reverse("quest-list"), reverse("quest-detail", args=[self.quest.pk]), reverse("trader-quests", args=[self.trader.pk])]:
+            data = self.client.get(url).data
+            quest = data[0] if isinstance(data, list) else data
+            self.assertEqual(quest["reputation_reward"], "0.25")
+            self.assertEqual(quest["rubles_reward"], 500)
+            self.assertEqual(quest["experience_reward"], 100)
+        self.assertEqual(self.client.get(reverse("trader-list")).data[0]["reputation"], "1.20")
+
+    def test_profile_admin_fields_and_validation(self):
+        from .models import PlayerProfile
+        form_class = modelform_factory(PlayerProfile, fields=["nickname", "rubles", "euros", "dollars", "experience", "experience_per_level", "avatar"])
+        values = dict(nickname="Игрок", rubles=1, euros=2, dollars=3, experience=500, experience_per_level=100)
+        form = form_class(data=values, instance=self.profile)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertEqual(self.profile.level, 6)
+        self.assertFalse(form_class(data={**values, "experience_per_level": 0}, instance=self.profile).is_valid())
+        self.assertFalse(form_class(data={**values, "rubles": -1}, instance=self.profile).is_valid())
+
+    def test_admin_can_edit_profile_and_reputation(self):
+        admin = get_user_model().objects.create_superuser(username="editor", password="test-password")
+        self.client.force_login(admin)
+        response = self.client.post(reverse("admin:game_playerprofile_change", args=[1]), {
+            "nickname": "Новое имя", "rubles": 123, "euros": 4, "dollars": 5,
+            "experience": 2000, "experience_per_level": 500, "_save": "Save",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.nickname, "Новое имя")
+        self.assertEqual(self.profile.rubles, 123)
+        self.assertEqual(self.profile.level, 5)
+        response = self.client.post(reverse("admin:game_trader_change", args=[self.trader.pk]), {
+            "name": self.trader.name, "slug": self.trader.slug, "available": "on",
+            "reputation": "2.50", "sort_order": 0, "_save": "Save",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.trader.refresh_from_db()
+        self.assertEqual(str(self.trader.reputation), "2.50")
+
+    def test_avatar_upload_and_api_url(self):
+        from .models import PlayerProfile
+        buffer = BytesIO()
+        Image.new("RGB", (2, 2)).save(buffer, format="PNG")
+        with TemporaryDirectory() as media_root, self.settings(MEDIA_ROOT=media_root):
+            form_class = modelform_factory(PlayerProfile, fields=["avatar"])
+            form = form_class(files={"avatar": SimpleUploadedFile("avatar.png", buffer.getvalue(), content_type="image/png")}, instance=self.profile)
+            self.assertTrue(form.is_valid(), form.errors)
+            form.save()
+            data = self.client.get(reverse("player-profile")).data
+            self.assertEqual(data["avatar"], "http://testserver" + self.profile.avatar.url)
+            self.assertTrue(self.profile.avatar.storage.exists(self.profile.avatar.name))

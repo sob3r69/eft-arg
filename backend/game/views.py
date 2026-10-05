@@ -4,8 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Quest, QuestObjective, Submission, Trader
+from .models import PlayerProfile, Quest, QuestObjective, Submission, Trader
 from .serializers import (
+    PlayerProfileSerializer,
     QuestDetailSerializer,
     QuestListSerializer,
     SubmissionCreateSerializer,
@@ -78,6 +79,12 @@ class ObjectiveViewSet(viewsets.GenericViewSet):
         submission = serializer.save()
         response_serializer = SubmissionSerializer(submission)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PlayerProfileView(APIView):
+    def get(self, request):
+        profile, _ = PlayerProfile.objects.get_or_create(pk=1)
+        return Response(PlayerProfileSerializer(profile, context={"request": request}).data)
 
 
 class ProgressView(APIView):

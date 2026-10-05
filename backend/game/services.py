@@ -1,8 +1,9 @@
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
-from .models import Quest, QuestObjective, Submission
+from .models import PlayerProfile, Quest, QuestObjective, Submission, Trader
 
 
 @transaction.atomic
@@ -68,8 +69,21 @@ def complete_quest(quest: Quest) -> Quest:
     if not has_objectives or has_incomplete_objectives:
         raise ValidationError({"detail": "All objectives must be completed first."})
 
+    if quest.rewards_granted_at is None:
+        PlayerProfile.objects.get_or_create(pk=1)
+        PlayerProfile.objects.filter(pk=1).update(
+            rubles=F("rubles") + quest.rubles_reward,
+            euros=F("euros") + quest.euros_reward,
+            dollars=F("dollars") + quest.dollars_reward,
+            experience=F("experience") + quest.experience_reward,
+        )
+        Trader.objects.filter(pk=quest.trader_id).update(
+            reputation=F("reputation") + quest.reputation_reward,
+        )
+        quest.rewards_granted_at = timezone.now()
+
     quest.status = Quest.Status.COMPLETED
-    quest.save(update_fields=["status", "updated_at"])
+    quest.save(update_fields=["status", "updated_at", "rewards_granted_at"])
     refresh_available_quests()
 
     return quest

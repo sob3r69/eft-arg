@@ -1,12 +1,20 @@
 from rest_framework import serializers
 
-from .models import Item, Location, Quest, QuestObjective, Submission, Trader
+from .models import Item, Location, PlayerProfile, Quest, QuestObjective, Submission, Trader
+
+
+class PlayerProfileSerializer(serializers.ModelSerializer):
+    level = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PlayerProfile
+        fields = ["nickname", "avatar", "rubles", "euros", "dollars", "experience", "experience_per_level", "level"]
 
 
 class TraderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trader
-        fields = ["id", "slug", "name", "description", "image", "available"]
+        fields = ["id", "slug", "name", "description", "image", "available", "reputation"]
 
 
 class TraderShortSerializer(serializers.ModelSerializer):
@@ -61,7 +69,7 @@ class QuestListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quest
-        fields = ["id", "slug", "title", "description", "image", "status", "trader", "progress", "sort_order"]
+        fields = ["id", "slug", "title", "description", "image", "status", "trader", "progress", "sort_order", "reputation_reward", "rubles_reward", "euros_reward", "dollars_reward", "experience_reward"]
 
     def get_progress(self, quest: Quest) -> dict[str, int]:
         objectives = quest.objectives.all()

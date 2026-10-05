@@ -1,13 +1,26 @@
 from django.contrib import admin, messages
 from django.db.models import Case, IntegerField, When
 
-from .models import Item, Location, Quest, QuestObjective, QuestRequirement, Submission, Trader
+from .models import Item, Location, PlayerProfile, Quest, QuestObjective, QuestRequirement, Submission, Trader
 from .services import approve_submission, reject_submission
+
+
+@admin.register(PlayerProfile)
+class PlayerProfileAdmin(admin.ModelAdmin):
+    list_display = ["nickname", "rubles", "euros", "dollars", "experience", "level"]
+    readonly_fields = ["level"]
+
+    def has_add_permission(self, request):
+        return super().has_add_permission(request) and not PlayerProfile.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Trader)
 class TraderAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "available", "sort_order"]
+    list_display = ["name", "slug", "reputation", "available", "sort_order"]
+    list_editable = ["reputation"]
     list_filter = ["available"]
     search_fields = ["name", "description"]
     ordering = ["sort_order", "id"]
@@ -53,7 +66,8 @@ class QuestObjectiveInline(admin.TabularInline):
 
 @admin.register(Quest)
 class QuestAdmin(admin.ModelAdmin):
-    list_display = ["title", "trader", "status", "sort_order"]
+    list_display = ["title", "trader", "status", "reputation_reward", "rubles_reward", "experience_reward", "sort_order"]
+    readonly_fields = ["rewards_granted_at"]
     list_filter = ["trader", "status"]
     search_fields = ["title", "description"]
     ordering = ["sort_order", "id"]

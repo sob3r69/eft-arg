@@ -78,6 +78,8 @@ function HomePage() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['quests'] }),
         queryClient.invalidateQueries({ queryKey: ['quest', questId] }),
+        queryClient.invalidateQueries({ queryKey: ['player'] }),
+        queryClient.invalidateQueries({ queryKey: ['traders'] }),
         queryClient.invalidateQueries({ queryKey: ['progress'] }),
       ]);
     },
@@ -316,7 +318,10 @@ function QuestDetails({
             <span>EXP</span>
             <div>
               <small>ОПЫТ</small>
-              <strong>+10 000</strong>
+              <strong>
+                +
+                {quest.experience_reward.toLocaleString('ru-RU')}
+              </strong>
             </div>
           </div>
 
@@ -324,14 +329,35 @@ function QuestDetails({
             <span><ChartNoAxesColumnIncreasing aria-hidden="true" /></span>
             <div>
               <small>{quest.trader.name}</small>
-              <strong>+0,25</strong>
+              <strong>
+                {Number(quest.reputation_reward) >= 0 ? '+' : ''}
+                {quest.reputation_reward}
+              </strong>
             </div>
           </div>
 
           <div className={classes.rewardItem}>
             <span><Banknote aria-hidden="true" /></span>
-            <strong>Рубли</strong>
+            <div>
+              <small>Рубли</small>
+              <strong>
+                +
+                {quest.rubles_reward.toLocaleString('ru-RU')}
+              </strong>
+            </div>
           </div>
+          {([['Евро', quest.euros_reward], ['Доллары', quest.dollars_reward]] as const).filter(([, amount]) => amount > 0).map(([currency, amount]) => (
+            <div key={currency} className={classes.rewardItem}>
+              <span><Banknote aria-hidden="true" /></span>
+              <div>
+                <small>{currency}</small>
+                <strong>
+                  +
+                  {amount.toLocaleString('ru-RU')}
+                </strong>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </>

@@ -9,6 +9,22 @@ export interface Trader {
   description: string;
   image:       string | null;
   available:   boolean;
+  reputation:  string;
+}
+
+export interface PlayerProfile {
+  nickname:             string;
+  avatar:               string | null;
+  rubles:               number;
+  euros:                number;
+  dollars:              number;
+  experience:           number;
+  experience_per_level: number;
+  level:                number;
+}
+
+export function getPlayerProfile() {
+  return apiRequest<PlayerProfile>('/player/');
 }
 
 export interface QuestProgress {
@@ -17,15 +33,20 @@ export interface QuestProgress {
 }
 
 export interface QuestListItem {
-  image:       string | null;
-  id:          number;
-  slug:        string;
-  title:       string;
-  description: string;
-  status:      QuestStatus;
-  trader:      Pick<Trader, 'id' | 'slug' | 'name'>;
-  progress:    QuestProgress;
-  sort_order:  number;
+  image:             string | null;
+  id:                number;
+  slug:              string;
+  title:             string;
+  description:       string;
+  status:            QuestStatus;
+  trader:            Pick<Trader, 'id' | 'slug' | 'name'>;
+  progress:          QuestProgress;
+  sort_order:        number;
+  reputation_reward: string;
+  rubles_reward:     number;
+  euros_reward:      number;
+  dollars_reward:    number;
+  experience_reward: number;
 }
 
 export interface QuestObjective {

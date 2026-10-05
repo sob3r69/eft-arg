@@ -1,4 +1,31 @@
+from django.core.validators import MinValueValidator
 from django.db import models
+
+
+class PlayerProfile(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    nickname = models.CharField("Никнейм", max_length=100, default="Игрок")
+    avatar = models.ImageField("Аватар", upload_to="players/", max_length=255, blank=True)
+    rubles = models.PositiveBigIntegerField("Рубли", default=0)
+    euros = models.PositiveBigIntegerField("Евро", default=0)
+    dollars = models.PositiveBigIntegerField("Доллары", default=0)
+    experience = models.PositiveBigIntegerField("Опыт", default=0)
+    experience_per_level = models.PositiveIntegerField(
+        "Опыт на уровень", default=10000, validators=[MinValueValidator(1)],
+        help_text="Уровень = 1 + целая часть (опыт / опыт на уровень).",
+    )
+
+    class Meta:
+        verbose_name = "Профиль игрока"
+        verbose_name_plural = "Профиль игрока"
+        constraints = [models.CheckConstraint(condition=models.Q(id=1), name="single_player_profile")]
+
+    @property
+    def level(self):
+        return 1 + self.experience // self.experience_per_level
+
+    def __str__(self):
+        return self.nickname
 
 
 class Trader(models.Model):
@@ -6,6 +33,7 @@ class Trader(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="traders/", max_length=255, blank=True)
+    reputation = models.DecimalField("Текущая репутация", max_digits=12, decimal_places=2, default=0)
     available = models.BooleanField(default=True)
     sort_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -56,6 +84,12 @@ class Quest(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="quests/", max_length=255, blank=True)
+    reputation_reward = models.DecimalField("Награда: репутация", max_digits=8, decimal_places=2, default=0)
+    rubles_reward = models.PositiveBigIntegerField("Награда: рубли", default=0)
+    euros_reward = models.PositiveBigIntegerField("Награда: евро", default=0)
+    dollars_reward = models.PositiveBigIntegerField("Награда: доллары", default=0)
+    experience_reward = models.PositiveBigIntegerField("Награда: опыт", default=0)
+    rewards_granted_at = models.DateTimeField(null=True, blank=True, editable=False)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.LOCKED)
     sort_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

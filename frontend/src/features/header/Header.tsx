@@ -5,7 +5,7 @@ import { Link } from '@tanstack/react-router';
 import { ChartNoAxesColumnIncreasing, CircleCheck, Crown, Handshake, Headset, ShoppingCart, TimerReset } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTraderSelection } from '#/providers/TraderSelectionProvider';
-import { getTraders } from '#/shared/api/game';
+import { getPlayerProfile, getTraders } from '#/shared/api/game';
 
 import classes from './Header.module.css';
 
@@ -17,9 +17,19 @@ export function Header({ onUnavailableClick }: HeaderProps) {
   const { selectedTraderSlug, setSelectedTraderSlug } = useTraderSelection();
 
   const tradersQuery = useQuery({
-    queryKey: ['traders'],
-    queryFn:  getTraders,
+    queryKey:        ['traders'],
+    queryFn:         getTraders,
+    refetchInterval: 5000,
   });
+
+  const profileQuery = useQuery({
+    queryKey:        ['player'],
+    queryFn:         getPlayerProfile,
+    refetchInterval: 5000,
+  });
+  const profile = profileQuery.data;
+  const selectedTrader = tradersQuery.data?.find(trader => trader.slug === selectedTraderSlug);
+  const formatMoney = (value: number | undefined) => value === undefined ? '—' : value.toLocaleString('ru-RU');
 
   const traders = getTraderCards(tradersQuery.data, tradersQuery.isLoading, tradersQuery.isError);
 
@@ -131,10 +141,12 @@ export function Header({ onUnavailableClick }: HeaderProps) {
               <div className={classes.traderStats}>
                 <span>
                   <ChartNoAxesColumnIncreasing aria-hidden="true" />
-                  3.75
+                  {/* TRADER REPUTATION */}
+                  {trader.reputation ?? '—'}
                 </span>
                 <span>
                   <TimerReset aria-hidden="true" />
+                  {/* TRADER FAKE TIMER */}
                   00:31:54
                 </span>
               </div>
@@ -149,13 +161,22 @@ export function Header({ onUnavailableClick }: HeaderProps) {
         <div className={classes.profile}>
           <div className={classes.profileInfo}>
             <strong className={classes.profileName}>
-              sob3rz (вы)
+              {profile ? `${profile.nickname} (вы)` : profileQuery.isError ? 'Нет связи' : 'Загрузка…'}
             </strong>
 
             <div className={classes.profileMoney}>
-              <span>₽ 7 657 179</span>
-              <span>€ 7 379</span>
-              <span>$ 11 928</span>
+              <span>
+                ₽
+                {formatMoney(profile?.rubles)}
+              </span>
+              <span>
+                €
+                {formatMoney(profile?.euros)}
+              </span>
+              <span>
+                $
+                {formatMoney(profile?.dollars)}
+              </span>
             </div>
 
             <div className={classes.profileDivider} />
@@ -168,14 +189,20 @@ export function Header({ onUnavailableClick }: HeaderProps) {
               </span>
 
               <span>
-                LVL 29
+                LVL
+                {' '}
+                {profile?.level ?? '—'}
               </span>
 
               <span>
                 <ChartNoAxesColumnIncreasing aria-hidden="true" />
-                3.75
+                {selectedTrader?.reputation ?? '—'}
               </span>
-              <span>₽ 9М (потр.)</span>
+              <span>
+                {formatMoney(profile?.experience)}
+                {' '}
+                EXP
+              </span>
             </div>
             <div className={`${classes.profileStats} ${classes.nextLevel}`}>
               <span>
@@ -193,7 +220,21 @@ export function Header({ onUnavailableClick }: HeaderProps) {
             </div>
           </div>
 
-          <div className={classes.profileAvatar} role="img" aria-label="Персонаж, уровень 29" />
+          <div className={classes.profileAvatar}>
+            {profile?.avatar
+              ? (
+                  <img
+                    key={profile.avatar}
+                    src={profile.avatar}
+                    alt={`Аватар ${profile.nickname}`}
+                    onError={(event) => { event.currentTarget.hidden = true; }}
+                  />
+                )
+              : <span className={classes.avatarPlaceholder} aria-hidden="true">?</span>}
+            <span className={classes.profileLevel} aria-label={`Уровень ${profile?.level ?? 'неизвестен'}`}>
+              {profile?.level ?? '—'}
+            </span>
+          </div>
         </div>
       </div>
     </header>
@@ -201,11 +242,12 @@ export function Header({ onUnavailableClick }: HeaderProps) {
 }
 
 interface TraderCard {
-  id:         string;
-  name:       string;
-  image:      string;
-  levelLabel: string;
-  disabled:   boolean;
+  id:          string;
+  name:        string;
+  image:       string;
+  levelLabel:  string;
+  disabled:    boolean;
+  reputation?: string;
 }
 
 function getTraderCards(traders: Trader[] | undefined, isLoading: boolean, isError: boolean): TraderCard[] {
@@ -214,6 +256,7 @@ function getTraderCards(traders: Trader[] | undefined, isLoading: boolean, isErr
       id:         trader.slug,
       name:       trader.name,
       image:      trader.image ?? '',
+      reputation: trader.reputation,
       levelLabel: getLevelLabel(index),
       disabled:   !trader.available,
     }));
